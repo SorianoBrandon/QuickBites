@@ -10,11 +10,12 @@ class ColumnRegister extends StatefulWidget {
 }
 
 class _ColumnRegisterState extends State<ColumnRegister> {
-  final TextEditingController emailController = TextEditingController(); 
- //--------------
-  final TextEditingController passwordController = TextEditingController(); 
- //-------------------
-  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  //--------------
+  final TextEditingController passwordController = TextEditingController();
+  //-------------------
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
 
   final TextEditingController nameController = TextEditingController();
 
@@ -23,9 +24,7 @@ class _ColumnRegisterState extends State<ColumnRegister> {
   final TextEditingController addressController = TextEditingController();
 
   final TextEditingController phoneController = TextEditingController();
-
-  final TextEditingController establecimientoController = TextEditingController(); 
- //------------------------
+  //------------------------
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -39,15 +38,6 @@ class _ColumnRegisterState extends State<ColumnRegister> {
               fontSize: 18,
               fontWeight: FontWeight.w900,
             ),
-          ),
-        ),
-        const SizedBox(height: 20),
-
-        // Establecimiento
-        Center(
-          child: textField(
-            controler: establecimientoController,
-            texto: 'Establecimiento',
           ),
         ),
         const SizedBox(height: 20),
@@ -123,14 +113,12 @@ class _ColumnRegisterState extends State<ColumnRegister> {
         // Botón Entrar
         ElevatedButton(
           onPressed: () async {
-
             if (emailController.text.trim().isEmpty ||
                 passwordController.text.trim().isEmpty ||
                 nameController.text.trim().isEmpty ||
                 lastNameController.text.trim().isEmpty ||
                 addressController.text.trim().isEmpty ||
-                phoneController.text.trim().isEmpty ||
-                establecimientoController.text.trim().isEmpty) {
+                phoneController.text.trim().isEmpty) {
               // Mostrar un mensaje de error si algún campo está vacío
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
@@ -153,13 +141,13 @@ class _ColumnRegisterState extends State<ColumnRegister> {
             }
 
             await AuthService().createUser(
-              email: emailController.text, 
-              password: passwordController.text, 
-              nombre: nameController.text, 
-              apellido: lastNameController.text, 
-              direccion: addressController.text, 
-              telefono: phoneController.text, 
-              establecimiento: establecimientoController.text, 
+              email: emailController.text,
+              password: passwordController.text,
+              nombre: nameController.text,
+              apellido: lastNameController.text,
+              direccion: addressController.text,
+              telefono: phoneController.text,
+              establecimiento: '',
               context: context,
             );
 
@@ -169,7 +157,6 @@ class _ColumnRegisterState extends State<ColumnRegister> {
             lastNameController.text = "";
             addressController.text = "";
             phoneController.text = "";
-            establecimientoController.text = "";
             confirmPasswordController.text = "";
           },
           style: ElevatedButton.styleFrom(
