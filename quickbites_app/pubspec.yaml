@@ -16,6 +16,7 @@ dependencies:
   go_router: ^15.0.0
   crclib: ^3.0.0
   flutter_spinkit: ^5.2.1
+  intl: ^0.20.2
 
 
 dev_dependencies:
