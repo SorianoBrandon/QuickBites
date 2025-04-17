@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:quickbites_app/src/auth/auth_register.dart';
+import 'package:quickbites_app/src/signin/role_loading_screen.dart';
 import 'package:quickbites_app/src/widgets/text_field_login.dart';
 
 class ColumnLogin extends StatelessWidget {
@@ -19,7 +21,7 @@ class ColumnLogin extends StatelessWidget {
             'Login',
             style: TextStyle(
               color: Colors.orange[50],
-              fontSize: 18,
+              fontSize: 18, 
               fontWeight: FontWeight.w900,
             ),
           ),
@@ -53,7 +55,8 @@ class ColumnLogin extends StatelessWidget {
         Align(
           alignment: Alignment.centerRight,
           child: TextButton(
-            onPressed: () {},
+            onPressed: () {
+            },
             child: Text(
               '¿Olvidaste tu contraseña?',
               style: TextStyle(color: Colors.grey[300]),
@@ -64,7 +67,24 @@ class ColumnLogin extends StatelessWidget {
 
         // Botón Entrar
         ElevatedButton(
-          onPressed: () {},
+          onPressed: () async {
+
+            try {
+              // 1) Autenticarse
+              await AuthService().loginWithEmailAndPassword(
+                emailController.text.trim(),
+                passwordController.text,
+                context,
+              );
+              // 2) Verificar rol y navegar
+              await RoleLoadingScreen().checkUserRole(contexto: context);
+            } catch (e) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Error: ${e.toString()}')),
+              );
+            }
+
+          },
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFFf03c0f),
             shape: RoundedRectangleBorder(

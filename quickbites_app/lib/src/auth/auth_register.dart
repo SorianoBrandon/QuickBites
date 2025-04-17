@@ -1,12 +1,15 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:quickbites_app/src/env/hash.dart';
 
 
 class AuthService {
   // Instancias de Firebase
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final CRC32Hasher hash = CRC32Hasher();
 
   // Función para crear usuario con email, contraseña y datos adicionales
   Future<void> createUser({
@@ -16,7 +19,6 @@ class AuthService {
     required String apellido,
     required String direccion,
     required String telefono,
-    required String establecimiento,
     required BuildContext context,
   }) async {
     try {
@@ -30,33 +32,32 @@ class AuthService {
       if (user != null) {
         // Guardar datos adicionales en Firestore
         await _firestore
-            .collection('restaurantes')
-            .doc("restaurante#1")
-            .collection('empleados')
+            .collection('usuarios')
             .doc(user.uid)
             .set({
           'uid': user.uid,
           'email': user.email,
+          'codigo': hash.generar(user.email.toString()),
           'nombre': nombre,
           'apellido': apellido,
           'direccion': direccion,
           'telefono': telefono,
-          'establecimiento': establecimiento,
+          'establecimiento': "",
           'createdAt': FieldValue.serverTimestamp(),
-          'rol': "",
+          'rol': "", 
         });
 
         // return user;
       }
 
       if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Usuario registrado exitosamente.'),
-                  backgroundColor: Colors.green,
-                ),
-              );
-            }
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Usuario registrado exitosamente.'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
 
       return;
     } on FirebaseAuthException catch (e) {
@@ -72,10 +73,47 @@ class AuthService {
       
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $message')),
+          SnackBar(content: Text('Error: $message'), backgroundColor: Colors.red,),
         );
       }
 
     } 
   }
+
+  // Iniciar sesión con correo y contraseña
+  Future<void> loginWithEmailAndPassword(
+  String email,
+  String password,
+  BuildContext context,
+) async {
+  try {
+    await _auth.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+    // Si quieres notificar o navegar aquí, podrías hacerlo, 
+    // pero en tu caso lo haces desde RoleLoadingScreen.
+  } on FirebaseAuthException catch (e) {
+    String message;
+    switch (e.code) {
+      case 'user-not-found':
+        message = 'No existe una cuenta con ese correo';
+        break;
+      case 'wrong-password':
+        message = 'Contraseña incorrecta';
+        break;
+      case 'invalid-email':
+        message = 'El correo no es válido';
+        break;
+      default:
+        message = 'Ocurrió un error: ${e.message}';
+    }
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: Colors.red),
+      );
+    }
+  }
+}
+
 }

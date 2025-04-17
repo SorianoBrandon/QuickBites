@@ -14,7 +14,7 @@ class ManagerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3, // Número de pestañas
+      length: 4, // Número de pestañas
       child: Scaffold(
         appBar: AppBar(
           title: Text("${user["nombre"]} ${user["apellido"]}"),
@@ -23,7 +23,7 @@ class ManagerScreen extends StatelessWidget {
               Tab(text: "Usuario"),
               Tab(text: "Local"),
               Tab(text: "Menú"),
-              Tab(text: "Cocina"),
+              Tab(text: "Cocina"), 
             ],
           ),
         ),

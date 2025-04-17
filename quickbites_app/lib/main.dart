@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:quickbites_app/src/routes/router.dart';
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
-import 'package:quickbites_app/src/widgets/login_screen.dart';
 
 void main() async {
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
@@ -16,10 +16,11 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'QuickBites',
-      home: LoginScreen(),
+      routerConfig: router,
     );
   }
 }
+ 

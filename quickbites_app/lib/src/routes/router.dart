@@ -17,7 +17,7 @@ final router = GoRouter(
         path: '/manager',
         name: 'manager',
         builder: (context, state) { 
-          final user = state.extra as Map;
+          final user = state.extra as Map; 
           return ManagerScreen(user: user); 
         },
       ),

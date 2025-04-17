@@ -10,4 +10,4 @@ class CRC32Hasher {
     final digest = crc.convert(bytes);               
     return digest.toRadixString(16).padLeft(8,'0');
   }
-}
+} 

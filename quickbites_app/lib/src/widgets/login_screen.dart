@@ -20,7 +20,7 @@ class _LoginScreenState extends State<LoginScreen>
 
   @override
   void initState() {
-    super.initState();
+    super.initState(); 
 
     _controller = AnimationController(
       vsync: this,
@@ -31,7 +31,7 @@ class _LoginScreenState extends State<LoginScreen>
     _controller.value = 1; // empieza visible
   }
 
-  Future<void> _toggleForm() async {
+  Future<void> toggleForm() async {
     if (isAnimating) return;
     isAnimating = true;
 
@@ -56,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Widget _buildContainerContent() {
-    return isLogin ? ColumnLogin() : ColumnRegister();
+    return isLogin ? ColumnLogin() : ColumnRegister( change: toggleForm, );
   }
 
   @override
@@ -180,7 +180,7 @@ class _LoginScreenState extends State<LoginScreen>
                           ),
                           const SizedBox(width: 20),
                           GestureDetector(
-                            onTap: _toggleForm,
+                            onTap: toggleForm,
                             child: CircleAvatar(
                               backgroundColor: Colors.white,
                               radius: 25,

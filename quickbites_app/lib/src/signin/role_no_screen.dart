@@ -86,7 +86,7 @@ class NoRoleScreenState extends State<NoRoleScreen>
                   'Volver al inicio',
                   style: TextStyle(fontSize: 16), // Texto más pequeño
                 ),
-              ),
+              ), 
             ],
           ),
         ),

@@ -2,31 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:quickbites_app/src/auth/auth_register.dart';
 import 'package:quickbites_app/src/widgets/text_field_login.dart';
 
-class ColumnRegister extends StatefulWidget {
-  const ColumnRegister({super.key});
+class ColumnRegister extends StatelessWidget {
+  final VoidCallback change;
+  ColumnRegister({super.key, required this.change});
 
-  @override
-  State<ColumnRegister> createState() => _ColumnRegisterState();
-}
-
-class _ColumnRegisterState extends State<ColumnRegister> {
   final TextEditingController emailController = TextEditingController(); 
- //--------------
   final TextEditingController passwordController = TextEditingController(); 
- //-------------------
   final TextEditingController confirmPasswordController = TextEditingController();
-
   final TextEditingController nameController = TextEditingController();
-
   final TextEditingController lastNameController = TextEditingController();
-
   final TextEditingController addressController = TextEditingController();
-
   final TextEditingController phoneController = TextEditingController();
+  final TextEditingController establecimientoController = TextEditingController();
 
-  final TextEditingController establecimientoController = TextEditingController(); 
- //------------------------
-  @override
+  @override 
   Widget build(BuildContext context) {
     return Column(
       children: [
@@ -43,14 +32,6 @@ class _ColumnRegisterState extends State<ColumnRegister> {
         ),
         const SizedBox(height: 20),
 
-        // Establecimiento
-        Center(
-          child: textField(
-            controler: establecimientoController,
-            texto: 'Establecimiento',
-          ),
-        ),
-        const SizedBox(height: 20),
 
         // Email
         textField(
@@ -129,8 +110,7 @@ class _ColumnRegisterState extends State<ColumnRegister> {
                 nameController.text.trim().isEmpty ||
                 lastNameController.text.trim().isEmpty ||
                 addressController.text.trim().isEmpty ||
-                phoneController.text.trim().isEmpty ||
-                establecimientoController.text.trim().isEmpty) {
+                phoneController.text.trim().isEmpty ) {
               // Mostrar un mensaje de error si algún campo está vacío
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
@@ -159,7 +139,6 @@ class _ColumnRegisterState extends State<ColumnRegister> {
               apellido: lastNameController.text, 
               direccion: addressController.text, 
               telefono: phoneController.text, 
-              establecimiento: establecimientoController.text, 
               context: context,
             );
 
@@ -169,8 +148,9 @@ class _ColumnRegisterState extends State<ColumnRegister> {
             lastNameController.text = "";
             addressController.text = "";
             phoneController.text = "";
-            establecimientoController.text = "";
             confirmPasswordController.text = "";
+
+            change();
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFFf03c0f),
