@@ -8,10 +8,10 @@ class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<LoginScreen> createState() => LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen>
+class LoginScreenState extends State<LoginScreen>
     with TickerProviderStateMixin {
   bool isLogin = true;
   bool isAnimating = false;
@@ -31,7 +31,7 @@ class _LoginScreenState extends State<LoginScreen>
     _controller.value = 1; // empieza visible
   }
 
-  Future<void> _toggleForm() async {
+  Future<void> toggleForm() async {
     if (isAnimating) return;
     isAnimating = true;
 
@@ -56,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Widget _buildContainerContent() {
-    return isLogin ? ColumnLogin() : ColumnRegister();
+    return isLogin ? ColumnLogin() : ColumnRegister(cambio: toggleForm);
   }
 
   @override
@@ -180,7 +180,7 @@ class _LoginScreenState extends State<LoginScreen>
                           ),
                           const SizedBox(width: 20),
                           GestureDetector(
-                            onTap: _toggleForm,
+                            onTap: toggleForm,
                             child: CircleAvatar(
                               backgroundColor: Colors.white,
                               radius: 25,
