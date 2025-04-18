@@ -1,13 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:quickbites_app/firebase_services.dart';
+import 'package:quickbites_app/screens/waiter/SeleccionMesaScreen.dart';
+import 'package:quickbites_app/screens/waiter/menu_waiter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
-import 'package:quickbites_app/screens/waiter/menu_waiter.dart';
-import 'package:quickbites_app/screens/waiter/SeleccionMesaScreen.dart';
-
 
 class HomePageWaiter extends StatelessWidget {
   const HomePageWaiter({Key? key}) : super(key: key);
+
+  // Stream para obtener mesas ocupadas
+  Stream<List<Map<String, dynamic>>> getOccupiedTablesStream() {
+    return FirebaseFirestore.instance
+        .collection('tables')
+        .where('status', isEqualTo: 'occupied')
+        .snapshots()
+        .map((snapshot) {
+          return snapshot.docs.map((doc) {
+            final data = doc.data();
+            data['id'] = doc.id;
+            return data;
+          }).toList();
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +32,7 @@ class HomePageWaiter extends StatelessWidget {
         backgroundColor: Colors.orange,
       ),
       body: StreamBuilder<List<Map<String, dynamic>>>(
-        stream: getOrdersStream(),
+        stream: getOccupiedTablesStream(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -28,51 +42,150 @@ class HomePageWaiter extends StatelessWidget {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
 
-          final orders = snapshot.data ?? [];
+          final occupiedTables = snapshot.data ?? [];
+          
+          // Ordenar las mesas por número
+          occupiedTables.sort((a, b) => (a['number'] as num).compareTo(b['number'] as num));
 
           return Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Tus Órdenes',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+                // Encabezado de mesas ocupadas
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Mesas Ocupadas',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      'Total: ${occupiedTables.length} mesas',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orange,
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
+                
+                // Lista de mesas ocupadas
                 Expanded(
-                  child: orders.isEmpty
-                      ? const Center(child: Text('No hay órdenes disponibles.'))
+                  child: occupiedTables.isEmpty
+                      ? const Center(child: Text('No hay mesas ocupadas actualmente.'))
                       : ListView.builder(
-                          itemCount: orders.length,
+                          itemCount: occupiedTables.length,
                           itemBuilder: (context, index) {
-                            final order = orders[index];
-                            final Timestamp createdAt = order['createdAt'];
-                            final String horaFormateada = DateFormat.jm().format(createdAt.toDate());
+                            final table = occupiedTables[index];
+                            // Obtener la hora desde timestamp si existe
+                            String horaOcupada = "Ocupada";
+                            if (table['occupiedAt'] != null) {
+                              final Timestamp occupiedTime = table['occupiedAt'];
+                              horaOcupada = "Ocupada desde: ${DateFormat.jm().format(occupiedTime.toDate())}";
+                            }
+                            
                             return Card(
-                              elevation: 3,
-                              margin: const EdgeInsets.symmetric(vertical: 8),
-                              child: ListTile(
-                                leading: CircleAvatar(
-                                  backgroundColor: Colors.orange,
-                                  child: Text(order['mesa'].toString()),
-                                ),
-                                title: Text('Mesa No. ${order['mesa'].toString()}'),
-                                subtitle: Text('Inicio: $horaFormateada'),
-                                trailing: Text(order['total'].toString()),
+                              margin: const EdgeInsets.only(bottom: 12),
+                              elevation: 2,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(color: Colors.orange.shade200, width: 1),
+                              ),
+                              child: InkWell(
                                 onTap: () {
-                                  // acción al tocar la orden
+                                  // Navegar a la pantalla de menú
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => MenuScreen(
+                                        mesaId: table['id'],
+                                        mesaNumber: table['number'].toString(),
+                                      ),
+                                    ),
+                                  );
                                 },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Row(
+                                    children: [
+                                      // Círculo con número de mesa
+                                      CircleAvatar(
+                                        radius: 25,
+                                        backgroundColor: Colors.orange,
+                                        child: Text(
+                                          table['number'].toString(),
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      // Información de la mesa
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Mesa No. ${table['number'].toString()}',
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            Text(
+                                              horaOcupada,
+                                              style: TextStyle(
+                                                color: Colors.grey[600],
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      // Etiqueta de OCUPADA y flecha
+                                      Column(
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                            decoration: BoxDecoration(
+                                              color: Colors.red[100],
+                                              borderRadius: BorderRadius.circular(20),
+                                            ),
+                                            child: const Text(
+                                              'OCUPADA',
+                                              style: TextStyle(
+                                                color: Colors.red,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(width: 8),
+                                      const Icon(
+                                        Icons.chevron_right,
+                                        color: Colors.grey,
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
                             );
                           },
                         ),
                 ),
+                
                 const SizedBox(height: 16),
-                // Botón para seleccionar mesa
+                // Botón para seleccionar nueva mesa
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
@@ -82,9 +195,8 @@ class HomePageWaiter extends StatelessWidget {
                         MaterialPageRoute(
                           builder: (context) => SeleccionMesaScreen(
                             onMesaSeleccionada: (mesaId, mesaNumber) {
-                              Navigator.pop(context); // Cierra la pantalla de selección de mesa
+                              Navigator.pop(context);
 
-                              // Ahora redirige al menú
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -95,7 +207,6 @@ class HomePageWaiter extends StatelessWidget {
                                 ),
                               );
                             },
-
                           ),
                         ),
                       );
@@ -109,7 +220,7 @@ class HomePageWaiter extends StatelessWidget {
                     ),
                     icon: const Icon(Icons.table_restaurant, color: Colors.white),
                     label: const Text(
-                      'SELECCIONAR MESA',
+                      'SELECCIONAR MESA NUEVA',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
