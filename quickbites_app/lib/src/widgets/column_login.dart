@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:quickbites_app/src/auth/auth_register.dart';
-import 'package:quickbites_app/src/signin/role_loading_screen.dart';
+import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:quickbites_app/src/widgets/text_field_login.dart';
+import 'package:quickbites_app/src/controllers/login_controller.dart';
+import 'package:quickbites_app/src/controllers/user_controller.dart';
 
 class ColumnLogin extends StatelessWidget {
   ColumnLogin({super.key});
 
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController establecimientoController =
-      TextEditingController();
+  final logController = Get.find<LoginController>();
+  final userController = Get.find<UserController>();
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +21,7 @@ class ColumnLogin extends StatelessWidget {
             'Login',
             style: TextStyle(
               color: Colors.orange[50],
-              fontSize: 18, 
+              fontSize: 18,
               fontWeight: FontWeight.w900,
             ),
           ),
@@ -31,32 +31,38 @@ class ColumnLogin extends StatelessWidget {
         // Establecimiento
         Center(
           child: textField(
-            controler: establecimientoController,
+            controler: logController.controllers['establecimiento']!,
+            unseenText: false,
+            boardType: TextInputType.text,
             texto: 'Establecimiento',
+            textColor: const Color(0xFF6e2c13),
           ),
         ),
         const SizedBox(height: 20),
 
         // Email
         textField(
-          controler: emailController,
+          controler: logController.controllers['email']!,
           texto: 'Correo Electrónico',
+          unseenText: false,
+          boardType: TextInputType.emailAddress,
           icono: Icons.email,
         ),
         const SizedBox(height: 20),
 
         // Contraseña
         textField(
-          controler: passwordController,
+          controler: logController.controllers['password']!,
           texto: 'Contraseña',
+          unseenText: true,
+          boardType: TextInputType.visiblePassword,
           icono: Icons.lock_person_rounded,
         ),
 
         Align(
           alignment: Alignment.centerRight,
           child: TextButton(
-            onPressed: () {
-            },
+            onPressed: () {},
             child: Text(
               '¿Olvidaste tu contraseña?',
               style: TextStyle(color: Colors.grey[300]),
@@ -65,25 +71,22 @@ class ColumnLogin extends StatelessWidget {
         ),
         const SizedBox(height: 10),
 
-        // Botón Entrar
         ElevatedButton(
           onPressed: () async {
-
             try {
-              // 1) Autenticarse
-              await AuthService().loginWithEmailAndPassword(
-                emailController.text.trim(),
-                passwordController.text,
-                context,
+              bool logIn = await userController.loginWithEmail(
+                logController.controllers['email']!.text.trim(),
+                logController.controllers['password']!.text.trim(),
               );
-              // 2) Verificar rol y navegar
-              await RoleLoadingScreen().checkUserRole(contexto: context);
+              if (logIn) {
+                context.go('/');
+                logController.clearFields();
+              }
             } catch (e) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Error: ${e.toString()}')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
             }
-
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFFf03c0f),

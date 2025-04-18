@@ -6,27 +6,46 @@ class textField extends StatelessWidget {
     required this.controler,
     required this.texto,
     this.icono,
+    required this.unseenText,
+    required this.boardType,
+    this.onChanged,
+    this.textColor,
   });
 
   final TextEditingController controler;
   final IconData? icono;
   final String texto;
+  final bool unseenText;
+  final TextInputType boardType;
+  final void Function(String)? onChanged;
+  final Color? textColor;
 
   @override
   Widget build(BuildContext context) {
     return TextField(
+      obscureText: unseenText,
+      keyboardType: boardType,
       controller: controler,
-      style: TextStyle(color: Colors.grey[100], fontWeight: FontWeight.w900),
+      onChanged: onChanged,
+      style: TextStyle(
+        color: textColor ?? Colors.grey[100],
+        fontWeight: FontWeight.w900,
+      ),
       decoration: InputDecoration(
-        prefixIcon: Icon(icono, color: Color(0xFF6e2c13)),
+        prefixIcon: Icon(icono, color: const Color(0xFF6e2c13)),
         hintText: texto,
         hintStyle: TextStyle(
-          color: icono != null ? Colors.grey[100] : Color(0xFF6e2c13),
+          color:
+              textColor != null
+                  ? textColor!.withValues(alpha: 0.6)
+                  : Colors.grey[200]!.withValues(
+                    alpha: 0.5,
+                  ), // hintText no debe sobresalir
           fontWeight: FontWeight.w900,
           fontSize: 17,
         ),
-        border: UnderlineInputBorder(),
-        focusedBorder: UnderlineInputBorder(
+        border: const UnderlineInputBorder(),
+        focusedBorder: const UnderlineInputBorder(
           borderSide: BorderSide(color: Color(0xFFf03c0f), width: 3),
         ),
       ),

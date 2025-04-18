@@ -1,21 +1,71 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:quickbites_app/src/auth/auth_register.dart';
 import 'package:quickbites_app/src/widgets/text_field_login.dart';
+import 'package:quickbites_app/src/controllers/login_controller.dart';
 
 class ColumnRegister extends StatelessWidget {
-  final VoidCallback change;
-  ColumnRegister({super.key, required this.change});
+  ColumnRegister({super.key});
 
-  final TextEditingController emailController = TextEditingController(); 
-  final TextEditingController passwordController = TextEditingController(); 
-  final TextEditingController confirmPasswordController = TextEditingController();
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController lastNameController = TextEditingController();
-  final TextEditingController addressController = TextEditingController();
-  final TextEditingController phoneController = TextEditingController();
-  final TextEditingController establecimientoController = TextEditingController();
+  final LoginController logController = Get.find<LoginController>();
 
-  @override 
+  Widget _buildTextField({
+    required String keyName,
+    required String label,
+    required IconData icon,
+    bool obscure = false,
+    TextInputType type = TextInputType.text,
+    void Function(String)? onChanged,
+    Color? textColor,
+  }) {
+    return Column(
+      children: [
+        textField(
+          controler: logController.controllers[keyName]!,
+          texto: label,
+          icono: icon,
+          unseenText: obscure,
+          boardType: type,
+          onChanged: onChanged,
+          textColor: textColor,
+        ),
+        const SizedBox(height: 20),
+      ],
+    );
+  }
+
+  void _handleRegister(BuildContext context) async {
+    final emptyFields = logController.controllers.entries.any((e) {
+      final name = e.key;
+      return name != 'confirmPassword' &&
+          name != 'establecimiento' &&
+          e.value.text.trim().isEmpty;
+    });
+
+    if (emptyFields) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Por favor, completa todos los campos.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    await AuthService().createUser(
+      email: logController.controllers['email']!.text,
+      password: logController.controllers['password']!.text,
+      nombre: logController.controllers['name']!.text,
+      apellido: logController.controllers['lastName']!.text,
+      direccion: logController.controllers['address']!.text,
+      telefono: logController.controllers['phone']!.text,
+      context: context,
+    );
+
+    logController.clearFields();
+    logController.toggleForm();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
@@ -31,68 +81,59 @@ class ColumnRegister extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 20),
-
-
-        // Email
-        textField(
-          controler: emailController,
-          texto: 'Correo Electrónico',
-          icono: Icons.email,
+        _buildTextField(
+          keyName: 'email',
+          label: 'Correo Electrónico',
+          icon: Icons.email,
+          type: TextInputType.emailAddress,
         ),
-        const SizedBox(height: 20),
-
-        // Contraseña
-        textField(
-          controler: passwordController,
-          texto: 'Contraseña',
-          icono: Icons.password_rounded,
+        _buildTextField(
+          keyName: 'password',
+          label: 'Contraseña',
+          icon: Icons.lock_person_rounded,
+          type: TextInputType.visiblePassword,
+          obscure: true,
+          onChanged: logController.validatePasswords,
         ),
-        const SizedBox(height: 20),
-
-        // Confirm Contraseña
-        textField(
-          controler: confirmPasswordController,
-          texto: 'Confirmar Contraseña',
-          icono: Icons.password_outlined,
+        Obx(
+          () => _buildTextField(
+            keyName: 'confirmPassword',
+            label: 'Conf. Contraseña',
+            icon: Icons.lock_person_rounded,
+            type: TextInputType.visiblePassword,
+            obscure: true,
+            onChanged: logController.validatePasswords,
+            textColor: logController.confirmPasswordTextColor.value,
+          ),
         ),
-        const SizedBox(height: 20),
-
-        // Nombre
-        textField(
-          controler: nameController,
-          texto: 'Nombre',
-          icono: Icons.arrow_forward_ios_rounded,
+        _buildTextField(
+          keyName: 'name',
+          label: 'Nombre',
+          icon: Icons.person_2_rounded,
+          type: TextInputType.name,
         ),
-        const SizedBox(height: 20),
-
-        // Apellido
-        textField(
-          controler: lastNameController,
-          texto: 'Apellido',
-          icono: Icons.arrow_forward_ios_rounded,
+        _buildTextField(
+          keyName: 'lastName',
+          label: 'Apellido',
+          icon: Icons.person_2_rounded,
+          type: TextInputType.name,
         ),
-        const SizedBox(height: 20),
-
-        // Direccion
-        textField(
-          controler: addressController,
-          texto: 'Direccion',
-          icono: Icons.directions_outlined,
+        _buildTextField(
+          keyName: 'address',
+          label: 'Dirección',
+          icon: Icons.maps_home_work_rounded,
+          type: TextInputType.streetAddress,
         ),
-        const SizedBox(height: 20),
-
-        // Telefono
-        textField(
-          controler: phoneController,
-          texto: 'Teléfono',
-          icono: Icons.phone,
+        _buildTextField(
+          keyName: 'phone',
+          label: 'Teléfono',
+          icon: Icons.phone_android_rounded,
+          type: TextInputType.phone,
         ),
-        const SizedBox(height: 20),
-
         Align(
           alignment: Alignment.centerRight,
           child: TextButton(
-            onPressed: () {},
+            onPressed: logController.toggleForm,
             child: Text(
               '¿Ya tienes una cuenta?',
               style: TextStyle(color: Colors.grey[300]),
@@ -100,64 +141,14 @@ class ColumnRegister extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
-
-        // Botón Entrar
         ElevatedButton(
-          onPressed: () async {
-
-            if (emailController.text.trim().isEmpty ||
-                passwordController.text.trim().isEmpty ||
-                nameController.text.trim().isEmpty ||
-                lastNameController.text.trim().isEmpty ||
-                addressController.text.trim().isEmpty ||
-                phoneController.text.trim().isEmpty ) {
-              // Mostrar un mensaje de error si algún campo está vacío
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Por favor, completa todos los campos.'),
-                  backgroundColor: Colors.red,
-                ),
-              );
-              return; // Salir de la función si la validación falla
-            }
-
-            if (passwordController.text != confirmPasswordController.text) {
-              // Mostrar un mensaje de error si no coinciden las contraseñas
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Las contraseñas deben coincidir'),
-                  backgroundColor: Colors.red,
-                ),
-              );
-              return; // Salir de la función si la validación falla
-            }
-
-            await AuthService().createUser(
-              email: emailController.text, 
-              password: passwordController.text, 
-              nombre: nameController.text, 
-              apellido: lastNameController.text, 
-              direccion: addressController.text, 
-              telefono: phoneController.text, 
-              context: context,
-            );
-
-            emailController.text = "";
-            passwordController.text = "";
-            nameController.text = "";
-            lastNameController.text = "";
-            addressController.text = "";
-            phoneController.text = "";
-            confirmPasswordController.text = "";
-
-            change();
-          },
+          onPressed: () => _handleRegister(context),
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFFf03c0f),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(25),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 67, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 65, vertical: 10),
           ),
           child: Text(
             '¡Registrarse!',

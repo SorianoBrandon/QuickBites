@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
+import 'package:get/get.dart';
+import 'package:quickbites_app/src/controllers/user_controller.dart';
 
 class NoRoleScreen extends StatefulWidget {
   const NoRoleScreen({super.key});
@@ -21,9 +22,10 @@ class NoRoleScreenState extends State<NoRoleScreen>
       duration: const Duration(seconds: 2),
       vsync: this,
     )..repeat(reverse: true);
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 1.1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -34,11 +36,12 @@ class NoRoleScreenState extends State<NoRoleScreen>
 
   @override
   Widget build(BuildContext context) {
+    final UserController userController = Get.find<UserController>();
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.blue.shade200, Colors.blue.shade600],
+            colors: [Color(0xFFFFF1D0), Color(0xFF6e2c13)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -47,37 +50,45 @@ class NoRoleScreenState extends State<NoRoleScreen>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              const SizedBox(height: 30), // Espacio para mover el ícono más arriba
-              const SpinKitHourGlass(
-                color: Colors.white,
-                size: 120.0,
-              ),
+              const SizedBox(
+                height: 30,
+              ), // Espacio para mover el ícono más arriba
+
               const SizedBox(height: 30),
               ScaleTransition(
                 scale: _scaleAnimation,
                 child: Padding(
                   padding: const EdgeInsets.only(left: 20.0, right: 20.0),
-                  child: const Text(
-                    'Por favor, contacta al administrador para obtener un rol.',
-                    // Agregar el CODIGO del usuario ********
-                    style: TextStyle(
-                      fontSize: 25,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold
-                    ),
-                    textAlign: TextAlign.center,
+                  child: Column(
+                    children: [
+                      Text(
+                        'Por favor, contacta al administrador para obtener un rol.',
+                        // Agregar el CODIGO del usuario ********
+                        style: TextStyle(
+                          fontSize: 25,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      Text('Codigo: ${userController.codigo}'),
+                    ],
                   ),
                 ),
               ),
               const SizedBox(height: 60), // Más espacio para bajar el botón
               ElevatedButton(
                 onPressed: () {
+                  userController.signOut();
                   context.go('/login');
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.blue.shade700,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10), // Botón más pequeño
+                  backgroundColor: Color(0xFF6e2c13),
+                  foregroundColor: Color(0xFFFFF1D0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
+                  ), // Botón más pequeño
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(25),
                   ),
@@ -86,7 +97,7 @@ class NoRoleScreenState extends State<NoRoleScreen>
                   'Volver al inicio',
                   style: TextStyle(fontSize: 16), // Texto más pequeño
                 ),
-              ), 
+              ),
             ],
           ),
         ),
