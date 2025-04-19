@@ -1,0 +1,48 @@
+import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+class MesasDisponiblesPage extends StatelessWidget {
+  final String establecimiento;
+
+  MesasDisponiblesPage({required this.establecimiento});
+
+  @override
+  Widget build(BuildContext context) {
+    final box = GetStorage();
+
+    // Leer mesas guardadas localmente
+    List<MesaModel> mesasLocales = [];
+    final stored = box.read('mesas_disponibles');
+    if (stored != null) {
+      mesasLocales = (stored as List).map((e) => MesaModel.fromJson(Map<String, dynamic>.from(e))).toList();
+    }
+
+    return Scaffold(
+      appBar: AppBar(title: Text('Mesas Disponibles')),
+      body: StreamBuilder<List<MesaModel>>(
+        stream: getMesasDisponiblesStream(establecimiento), // de tu controller
+        initialData: mesasLocales, // Usa los datos locales si existen
+        builder: (context, snapshot) {
+          if (snapshot.hasError) return Center(child: Text('Error: ${snapshot.error}'));
+          if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
+
+          final mesas = snapshot.data!;
+          if (mesas.isEmpty) return Center(child: Text('No hay mesas disponibles'));
+
+          return ListView.builder(
+            itemCount: mesas.length,
+            itemBuilder: (context, index) {
+              final mesa = mesas[index];
+              return ListTile(
+                leading: Icon(Icons.event_seat),
+                title: Text('Mesa ${mesa.id}'),
+                subtitle: Text('Capacidad: ${mesa.capacidad}'),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}

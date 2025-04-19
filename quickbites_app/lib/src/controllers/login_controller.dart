@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:quickbites_app/src/controllers/user_controller.dart';
 
 class LoginController extends GetxController with GetTickerProviderStateMixin {
+  final UserController userController = Get.find<UserController>();
   final isLogin = true.obs;
   final isAnimating = false.obs;
 
@@ -67,5 +69,13 @@ class LoginController extends GetxController with GetTickerProviderStateMixin {
       control.dispose();
     }
     super.dispose();
+  }
+
+  bool isEstablecimiento() {
+    if (controllers['establecimiento']!.text.trim() !=
+        userController.establecimiento) {
+      return false;
+    }
+    return true;
   }
 }

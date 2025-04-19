@@ -62,9 +62,11 @@ class ColumnLogin extends StatelessWidget {
         Align(
           alignment: Alignment.centerRight,
           child: TextButton(
-            onPressed: () {},
+            onPressed: () {
+              contactanos(context);
+            },
             child: Text(
-              '¿Olvidaste tu contraseña?',
+              '¿Tienes un Restaurante?',
               style: TextStyle(color: Colors.grey[300]),
             ),
           ),
@@ -79,8 +81,19 @@ class ColumnLogin extends StatelessWidget {
                 logController.controllers['password']!.text.trim(),
               );
               if (logIn) {
-                context.go('/');
-                logController.clearFields();
+                if (logController.isEstablecimiento()) {
+                  context.go('/');
+                  logController.clearFields();
+                } else {
+                  userController.signOut();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'El Establecimiento debe ser Especificado.',
+                      ),
+                    ),
+                  );
+                }
               }
             } catch (e) {
               ScaffoldMessenger.of(
@@ -107,4 +120,62 @@ class ColumnLogin extends StatelessWidget {
       ],
     );
   }
+}
+
+void contactanos(BuildContext context) {
+  showDialog(
+    context: context,
+    barrierDismissible: true,
+    builder: (BuildContext context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        backgroundColor: Color(0xFFFFF1D0),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.restaurant, color: Colors.redAccent, size: 40),
+              SizedBox(height: 16),
+              Text(
+                '¡Que tu restaurante forme parte de nuestro equipo en QuickBites!',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 16),
+              Text(
+                'Mándanos un correo con la información de tu restaurante solicitando formar parte de nuestro equipo a:',
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 12),
+              SelectableText(
+                'quickbitesproject@gmail.com',
+                style: TextStyle(
+                  color: Colors.redAccent,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF5B2C1B),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text(
+                  'Cerrar',
+                  style: TextStyle(
+                    color: Colors.grey[300],
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
 }

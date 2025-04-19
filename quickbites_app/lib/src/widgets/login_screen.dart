@@ -59,12 +59,12 @@ class LoginScreen extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          _SocialButton(
+                          /*_SocialButton(
                             img: Image.asset('assets/google.png'),
                             color: Colors.redAccent,
                             onTap: () {},
                           ),
-                          const SizedBox(width: 20),
+                          const SizedBox(width: 20),*/
                           Obx(
                             () => _SocialButton(
                               icon:
@@ -182,7 +182,7 @@ class _OrDivider extends StatelessWidget {
 
 class _SocialButton extends StatelessWidget {
   final IconData? icon;
-  final Image? img;
+  //final Image? img;
   final Color color;
   final VoidCallback onTap;
 
@@ -190,7 +190,7 @@ class _SocialButton extends StatelessWidget {
     this.icon,
     required this.color,
     required this.onTap,
-    this.img,
+    //this.img,
   });
 
   @override
@@ -200,7 +200,7 @@ class _SocialButton extends StatelessWidget {
       child: CircleAvatar(
         backgroundColor: Colors.white,
         radius: 25,
-        child: img ?? Icon(icon, color: color, size: 26),
+        child: /*img ?? */ Icon(icon, color: color, size: 26),
       ),
     );
   }
