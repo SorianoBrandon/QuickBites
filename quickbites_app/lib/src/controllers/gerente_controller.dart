@@ -40,17 +40,24 @@ class GerenteController extends GetxController {
 
   Future<void> agregarMesa(MesaModel mesa) async {
     try {
-      await db
+      final docRef = db
           .collection(establecimiento)
           .doc('mesas')
           .collection('items')
-          .doc(mesa.id)
-          .set(mesa.toJson());
+          .doc(mesa.id);
+
+      final exists = await docRef.get();
+      if (exists.exists) {
+        Get.snackbar('¡Aviso!', 'Ya existe una mesa con ese Nombre.');
+        return;
+      }
+
+      await docRef.set(mesa.toJson());
       mesas.add(mesa);
       storage.write('mesas', mesas.map((e) => e.toJson()).toList());
       update();
     } catch (e) {
-      print('Error al agregar mesa: $e');
+      Get.snackbar('Error', 'Error al agregar mesa: $e');
     }
   }
 
@@ -69,7 +76,7 @@ class GerenteController extends GetxController {
         update();
       }
     } catch (e) {
-      print('Error al editar mesa: $e');
+      Get.snackbar('Error', 'Error al editar mesa: $e');
     }
   }
 
@@ -85,7 +92,7 @@ class GerenteController extends GetxController {
       storage.write('mesas', mesas.map((e) => e.toJson()).toList());
       update();
     } catch (e) {
-      print('Error al eliminar mesa: $e');
+      Get.snackbar('Error', 'Error al eliminar mesa: $e');
     }
   }
 
@@ -104,17 +111,24 @@ class GerenteController extends GetxController {
 
   Future<void> agregarPlatillo(PlatilloModel platillo) async {
     try {
-      await db
+      final docRef = db
           .collection(establecimiento)
           .doc('platillos')
           .collection('items')
-          .doc(platillo.id)
-          .set(platillo.toJson());
+          .doc(platillo.id);
+
+      final exists = await docRef.get();
+      if (exists.exists) {
+        Get.snackbar('¡Aviso!', 'Ya existe un platillo con este Nombre');
+        return;
+      }
+
+      await docRef.set(platillo.toJson());
       platillos.add(platillo);
       storage.write('platillos', platillos.map((e) => e.toJson()).toList());
       update();
     } catch (e) {
-      print('Error al agregar platillo: $e');
+      Get.snackbar('Error', 'Error al agregar platillo: $e');
     }
   }
 
@@ -133,7 +147,7 @@ class GerenteController extends GetxController {
         update();
       }
     } catch (e) {
-      print('Error al editar platillo: $e');
+      Get.snackbar('Error', 'Error al editar platillo: $e');
     }
   }
 
@@ -149,7 +163,7 @@ class GerenteController extends GetxController {
       storage.write('platillos', platillos.map((e) => e.toJson()).toList());
       update();
     } catch (e) {
-      print('Error al eliminar platillo: $e');
+      Get.snackbar('Error', 'Error al eliminar platillo: $e');
     }
   }
 
@@ -170,22 +184,29 @@ class GerenteController extends GetxController {
     try {
       // Verificar si ya hay 4 categorías
       if (categorias.length >= 4) {
-        print('Ya alcanzaste el máximo de 4 categorías');
+        Get.snackbar('¡Aviso!', 'Ya alcanzaste el máximo de 4 categorías');
         return;
       }
 
-      await db
+      final docRef = db
           .collection(establecimiento)
           .doc('categorias')
           .collection('items')
-          .doc(categoria.nombre) // Usamos el nombre como ID
-          .set(categoria.toJson());
+          .doc(categoria.nombre);
+
+      final exists = await docRef.get();
+      if (exists.exists) {
+        Get.snackbar('¡Aviso!', 'Ya existe una categoría con ese nombre');
+        return;
+      }
+
+      await docRef.set(categoria.toJson());
 
       categorias.add(categoria); // local
       storage.write('categorias', categorias.map((e) => e.toJson()).toList());
       update();
     } catch (e) {
-      print('Error al agregar categoría: $e');
+      Get.snackbar('Error', 'Error al agregar categoría: $e');
     }
   }
 
@@ -206,7 +227,7 @@ class GerenteController extends GetxController {
         update();
       }
     } catch (e) {
-      print('Error al editar categoría: $e');
+      Get.snackbar('Error', 'Error al editar categoría: $e');
     }
   }
 
@@ -222,7 +243,7 @@ class GerenteController extends GetxController {
       storage.write('categorias', categorias.map((e) => e.toJson()).toList());
       update();
     } catch (e) {
-      print('Error al eliminar categoría: $e');
+      Get.snackbar('Error', 'Error al eliminar categoría: $e');
     }
   }
 

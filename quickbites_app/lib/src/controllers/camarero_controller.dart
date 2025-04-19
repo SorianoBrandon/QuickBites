@@ -22,10 +22,10 @@ class CamareroController extends GetxController {
     codigoCamarero = storage.read('codigo') ?? '';
     cargarMesasDisponibles();
     cargarPedidosDelCamarero();
-   //cargarMesasOcupadas();
+    //cargarMesasOcupadas();
   }
 
- /*void cargarMesasOcupadas() {
+  /*void cargarMesasOcupadas() {
     FirebaseFirestore.instance
         .collection('tables')
         .where('status', isEqualTo: 'occupied')
@@ -41,10 +41,11 @@ class CamareroController extends GetxController {
         });
   }*/
 
-   String formatOccupiedTime(Timestamp? timestamp) {
+  String formatOccupiedTime(Timestamp? timestamp) {
     if (timestamp == null) return "Ocupada";
     return "Ocupada desde: ${DateFormat.jm().format(timestamp.toDate())}";
   }
+
   Stream<List<Map<String, dynamic>>> getOccupiedTablesStream() {
     return FirebaseFirestore.instance
         .collection('tables')
@@ -58,7 +59,6 @@ class CamareroController extends GetxController {
           }).toList();
         });
   }
-
 
   Future<void> cargarMesasDisponibles() async {
     final snapshot =
@@ -182,15 +182,13 @@ class CamareroController extends GetxController {
     await cargarPedidosDelCamarero();
     await cargarMesasDisponibles();
   }
-   Future<void> seleccionarMesa(String mesaId, String mesaNumber) async {
+
+  Future<void> seleccionarMesa(String mesaId, String mesaNumber) async {
     // Marcar mesa como ocupada en el formato de HomePageWaiter
-    await FirebaseFirestore.instance
-        .collection('tables')
-        .doc(mesaId)
-        .update({
-          'status': 'occupied',
-          'occupiedAt': FieldValue.serverTimestamp()
-        });
+    await FirebaseFirestore.instance.collection('tables').doc(mesaId).update({
+      'status': 'occupied',
+      'occupiedAt': FieldValue.serverTimestamp(),
+    });
   }
 
   Future<void> mandarAFacturar(String mesaId, String infoExtra) async {

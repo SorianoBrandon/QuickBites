@@ -1,17 +1,19 @@
+import 'package:quickbites_app/src/env/hash.dart';
+
 class PlatilloModel {
-  final String id;
+  final String? id;
   final String nombre;
   final double precio;
   final String categoria;
   final String subcategoria;
 
   PlatilloModel({
-    required this.id,
+    String? id,
     required this.nombre,
     required this.precio,
     required this.categoria,
     required this.subcategoria,
-  });
+  }) : id = id ?? CRC32Hasher().generar(nombre);
 
   factory PlatilloModel.fromJson(Map<String, dynamic> json) => PlatilloModel(
     id: json['id'],

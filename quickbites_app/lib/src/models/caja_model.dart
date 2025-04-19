@@ -1,3 +1,5 @@
+import 'package:quickbites_app/src/env/hash.dart';
+
 class FacturaModel {
   final String id;
   final String mesaId;
@@ -5,18 +7,21 @@ class FacturaModel {
   final double total;
   final DateTime fecha;
   final List<Map<String, dynamic>> productos;
-  final Map<String, dynamic>
-  datosFactura; // info adicional enviada por el camarero
+  final Map<String, dynamic> datosFactura;
 
   FacturaModel({
-    required this.id,
+    String? id,
     required this.mesaId,
     required this.camarero,
     required this.total,
     required this.fecha,
     required this.productos,
     required this.datosFactura,
-  });
+  }) : id =
+           id ??
+           CRC32Hasher().generar(
+             '$mesaId-${fecha.millisecondsSinceEpoch}-$camarero',
+           );
 
   factory FacturaModel.fromJson(Map<String, dynamic> json) => FacturaModel(
     id: json['id'],
