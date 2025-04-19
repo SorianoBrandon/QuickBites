@@ -16,9 +16,11 @@ class RedirectScreen extends StatelessWidget {
         final rol = userController.rol;
         if (rol == 'Gerente') {
           context.goNamed('manager');
-        } else {
-          context.goNamed('no-role');
+        } else if (rol == 'Mesero'){
+          context.goNamed('waiter');
         }
+        else 
+        context.goNamed('no-role');
       } else {
         context.goNamed('login');
       }

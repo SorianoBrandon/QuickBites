@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:quickbites_app/screens/waiter/HomePage_waiter.dart';
 import 'package:quickbites_app/src/signin/role_no_screen.dart';
 import 'package:quickbites_app/src/signin/role_screen.dart';
 import 'package:quickbites_app/src/widgets/login_screen.dart';
@@ -22,6 +23,11 @@ final router = GoRouter(
       name: 'no-role',
       path: '/no-role',
       builder: (context, state) => NoRoleScreen(),
+    ),
+    GoRoute(
+      name: 'waiter',
+      path: '/waiter',
+      builder: (context, state) => const HomePageWaiter(),
     ),
   ],
 );

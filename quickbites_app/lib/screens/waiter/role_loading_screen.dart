@@ -22,13 +22,13 @@ class RoleLoadingScreen {
           if (rol == 'Gerente') {
             contexto.go('/manager', extra: userDoc.data());
           }
-          if (rol == 'Cocina') {
+          else if (rol == 'Cocina') {
             contexto.go('/no-role');
           }
-          if (rol == 'Mesero') {
-            contexto.go('/no-role');
+          else if (rol == 'Mesero') {
+            contexto.go('/waiter');
           }
-          if (rol == '') {
+          else if (rol == '') {
             contexto.go('/no-role');
           }
         }

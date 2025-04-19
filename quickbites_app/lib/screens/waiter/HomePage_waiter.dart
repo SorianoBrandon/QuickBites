@@ -1,30 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:quickbites_app/firebase_services.dart';
 import 'package:quickbites_app/screens/waiter/SeleccionMesaScreen.dart';
 import 'package:quickbites_app/screens/waiter/menu_waiter.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';
+import 'package:get/get.dart';
+import 'package:quickbites_app/src/controllers/camarero_controller.dart';
 
 class HomePageWaiter extends StatelessWidget {
   const HomePageWaiter({Key? key}) : super(key: key);
 
-  // Stream para obtener mesas ocupadas
-  Stream<List<Map<String, dynamic>>> getOccupiedTablesStream() {
-    return FirebaseFirestore.instance
-        .collection('tables')
-        .where('status', isEqualTo: 'occupied')
-        .snapshots()
-        .map((snapshot) {
-          return snapshot.docs.map((doc) {
-            final data = doc.data();
-            data['id'] = doc.id;
-            return data;
-          }).toList();
-        });
-  }
-
   @override
   Widget build(BuildContext context) {
+    // Inicializando el controlador de camarero con GetX
+    final camareroController = Get.put(CamareroController());
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mesero'),
@@ -32,7 +19,8 @@ class HomePageWaiter extends StatelessWidget {
         backgroundColor: Colors.orange,
       ),
       body: StreamBuilder<List<Map<String, dynamic>>>(
-        stream: getOccupiedTablesStream(),
+        // Usando el stream del controlador
+        stream: camareroController.getOccupiedTablesStream(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -44,7 +32,7 @@ class HomePageWaiter extends StatelessWidget {
 
           final occupiedTables = snapshot.data ?? [];
           
-          // Ordenar las mesas por número
+          // Ordenando las mesas por número
           occupiedTables.sort((a, b) => (a['number'] as num).compareTo(b['number'] as num));
 
           return Padding(
@@ -83,11 +71,11 @@ class HomePageWaiter extends StatelessWidget {
                           itemCount: occupiedTables.length,
                           itemBuilder: (context, index) {
                             final table = occupiedTables[index];
-                            // Obtener la hora desde timestamp si existe
+                            
+                            // Usar el controlador para formatear la hora (lo añadi al camarero_controller.dart)
                             String horaOcupada = "Ocupada";
                             if (table['occupiedAt'] != null) {
-                              final Timestamp occupiedTime = table['occupiedAt'];
-                              horaOcupada = "Ocupada desde: ${DateFormat.jm().format(occupiedTime.toDate())}";
+                              horaOcupada = camareroController.formatOccupiedTime(table['occupiedAt']);
                             }
                             
                             return Card(
@@ -194,7 +182,10 @@ class HomePageWaiter extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) => SeleccionMesaScreen(
-                            onMesaSeleccionada: (mesaId, mesaNumber) {
+                            onMesaSeleccionada: (mesaId, mesaNumber) async {
+                              // Usar el controlador para seleccionar la mesa
+                              await camareroController.seleccionarMesa(mesaId, mesaNumber);
+                              
                               Navigator.pop(context);
 
                               Navigator.push(
