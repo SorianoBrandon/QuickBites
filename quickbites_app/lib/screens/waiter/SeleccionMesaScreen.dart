@@ -14,7 +14,12 @@ class SeleccionMesaScreen extends StatelessWidget {
         backgroundColor: Colors.redAccent,
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('tables').snapshots(),
+        // Cambiado: Ruta corregida para coincidir con el controlador
+        stream: FirebaseFirestore.instance
+            .collection('Restaurante')
+            .doc('mesas')
+            .collection('items')
+            .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return const Center(child: Text('Error al cargar las mesas'));
@@ -62,6 +67,134 @@ class SeleccionMesaScreen extends StatelessWidget {
           );
         },
       ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.redAccent,
+        child: const Icon(Icons.add, color: Colors.white),
+        onPressed: () {
+          _mostrarDialogoCrearMesa(context);
+        },
+      ),
+    );
+  }
+
+  void _mostrarDialogoCrearMesa(BuildContext context) {
+    final formKey = GlobalKey<FormState>();
+    String numero = '';
+    String capacidad = '2';
+    
+    // Nombre del establecimiento consistente con GerenteController
+    final establecimiento = 'Restaurante';
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Agregar Nueva Mesa'),
+          content: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: 'Número de mesa',
+                    hintText: 'Ej: 1, 2, 3',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Por favor ingrese un número para la mesa';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    numero = value;
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: 'Capacidad (personas)',
+                    hintText: 'Ej: 2, 4, 6',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
+                  initialValue: '2',
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Por favor ingrese la capacidad';
+                    }
+                    final parsedValue = int.tryParse(value);
+                    if (parsedValue == null || parsedValue <= 0) {
+                      return 'Ingrese un número válido';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    capacidad = value;
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.redAccent,
+              ),
+              onPressed: () async {
+                if (formKey.currentState!.validate()) {
+                  try {
+                    final String mesaId = 'mesa_$numero';
+                    
+                    final newTable = {
+                      'id': mesaId,
+                      'nombre': numero,
+                      'number': numero,
+                      'capacidad': int.tryParse(capacidad) ?? 2,
+                      'ocupada': false,
+                      'status': 'available'
+                    };
+                    
+                    // Ruta corregida para coincidir con el controlador
+                    await FirebaseFirestore.instance
+                      .collection(establecimiento)
+                      .doc('mesas')
+                      .collection('items')
+                      .doc(mesaId)
+                      .set(newTable);
+                    
+                    Navigator.of(context).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Mesa agregada correctamente'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Error al agregar mesa: $e'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
+              },
+              child: const Text(
+                'Guardar',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -156,6 +289,5 @@ class MesaCard extends StatelessWidget {
         ),
       ),
     );
-    
   }
 }
