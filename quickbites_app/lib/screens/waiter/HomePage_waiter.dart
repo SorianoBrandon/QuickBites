@@ -184,6 +184,7 @@ class HomePageWaiter extends StatelessWidget {
                           builder: (context) => SeleccionMesaScreen(
                             onMesaSeleccionada: (mesaId, mesaNumber) async {
                               // Usar el controlador para seleccionar la mesa
+                              print("QUESOOOOOO $mesaId $mesaNumber ");
                               await camareroController.seleccionarMesa(mesaId, mesaNumber);
                               
                               if (context.mounted) {  // Verificar que el contexto siga siendo válido

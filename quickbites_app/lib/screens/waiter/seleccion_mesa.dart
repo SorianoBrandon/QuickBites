@@ -43,21 +43,20 @@ class SeleccionMesaScreen extends StatelessWidget {
             itemCount: mesas.length,
             itemBuilder: (context, index) {
             final mesa = mesas[index].data() as Map<String, dynamic>;
-            final isDisponible = mesa['status'] == null || 
-                     mesa['status'] == 'available' || 
-                     mesa['status'] == '';
+            final isDisponible = mesa['status'] == "available" ? true : false;
   
            return MesaCard(
             numero: mesa['number'].toString(),
-            capacidad: mesa['capacidad']?.toString() ?? '2',
+            capacidad: mesa['capacidad']?.toString() ?? '4',
             disponible: isDisponible,
             onTap: () async {
               if (isDisponible) {
                 // Primero marcamos la mesa como ocupada
-                await onMesaSeleccionada(mesas[index].id, mesa['number'].toString());
-                
-                // Pequeña pausa para permitir que Firestore se actualice
-                await Future.delayed(const Duration(milliseconds: 500));
+                print("NOOOOOOOOOOOOO pasoooooooooooooooooooo");
+                await onMesaSeleccionada(mesas[index].id, mesa['number']);
+                print("pasoooooooooooooooooooo");                
+                // // Pequeña pausa para permitir que Firestore se actualice
+                // await Future.delayed(const Duration(milliseconds: 500));
                 
                 // Luego navegamos al menú
                 Navigator.push(
