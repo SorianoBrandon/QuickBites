@@ -91,7 +91,6 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
 
   Future<void> _cargarDatosMesa() async {
     try {
-      // Usar la estructura vieja para obtener la capacidad de la mesa
       final mesaSnapshot = await FirebaseFirestore.instance
           .collection(_camareroController.establecimiento)
           .doc('mesas')
@@ -120,7 +119,6 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    // Si las categorías aún no se cargan o el controlador no está inicializado
     if (_categorias.isEmpty || !_tabController.hasListeners) {
       return Scaffold(
         appBar: AppBar(

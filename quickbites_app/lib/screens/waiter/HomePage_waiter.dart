@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:quickbites_app/screens/waiter/SeleccionMesaScreen.dart';
+import 'package:quickbites_app/screens/waiter/seleccion_mesa.dart';
 import 'package:quickbites_app/screens/waiter/menu_waiter.dart';
 import 'package:get/get.dart';
 import 'package:quickbites_app/src/controllers/camarero_controller.dart';
@@ -186,8 +186,7 @@ class HomePageWaiter extends StatelessWidget {
                               // Usar el controlador para seleccionar la mesa
                               await camareroController.seleccionarMesa(mesaId, mesaNumber);
                               
-                              Navigator.pop(context);
-
+                              if (context.mounted) {  // Verificar que el contexto siga siendo válido
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -197,6 +196,7 @@ class HomePageWaiter extends StatelessWidget {
                                   ),
                                 ),
                               );
+                            }
                             },
                           ),
                         ),

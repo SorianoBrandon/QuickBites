@@ -36,8 +36,6 @@ class CamareroController extends GetxController {
             data['id'] = doc.id;
             return data;
           }).toList();
-           tables.sort((a, b) => (a['number'] as num).compareTo(b['number'] as num));
-          mesasOcupadas.value = tables;
         });
   }*/
 
@@ -184,11 +182,20 @@ class CamareroController extends GetxController {
   }
 
   Future<void> seleccionarMesa(String mesaId, String mesaNumber) async {
-    // Marcar mesa como ocupada en el formato de HomePageWaiter
     await FirebaseFirestore.instance.collection('tables').doc(mesaId).update({
       'status': 'occupied',
       'occupiedAt': FieldValue.serverTimestamp(),
     });
+     await db
+      .collection(establecimiento)
+      .doc('mesas')
+      .collection('items')
+      .doc(mesaId)
+      .update({
+        'ocupada': true,
+        'status': 'occupied',
+        'occupiedAt': FieldValue.serverTimestamp(),
+      });
   }
 
   Future<void> mandarAFacturar(String mesaId, String infoExtra) async {
