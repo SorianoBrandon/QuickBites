@@ -61,6 +61,7 @@ void showAddMesaDialog(BuildContext context, GerenteController controller) {
                 return;
               }
               controller.agregarMesa(MesaModel(
+                numero: 2,
                 nombre: nombre,
                 capacidad: capacidad,
                 ocupada: ocupada,
@@ -131,6 +132,7 @@ void showEditMesaDialog(BuildContext context, GerenteController controller, Mesa
                 return;
               }
               controller.editarMesa(MesaModel(
+                numero: 1,
                 id: mesa.id,
                 nombre: nombre,
                 capacidad: capacidad,

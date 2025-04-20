@@ -4,6 +4,7 @@ class MesaModel {
   final String? id;
   final String nombre;
   final int capacidad;
+  final int? numero;
   final bool ocupada;
 
   MesaModel({
@@ -11,6 +12,7 @@ class MesaModel {
     required this.nombre,
     required this.capacidad,
     required this.ocupada,
+    this.numero,
   }) : id = id ?? CRC32Hasher().generar(nombre);
 
   factory MesaModel.fromJson(Map<String, dynamic> json) => MesaModel(
@@ -18,6 +20,7 @@ class MesaModel {
     nombre: json['nombre'],
     capacidad: json['capacidad'],
     ocupada: json['ocupada'],
+    numero: json['numero'],
   );
 
   Map<String, dynamic> toJson() => {
@@ -25,5 +28,8 @@ class MesaModel {
     'nombre': nombre,
     'capacidad': capacidad,
     'ocupada': ocupada,
+    'numero': numero,
   };
 }
+
+

@@ -10,6 +10,7 @@ class GerenteController extends GetxController {
   final storage = GetStorage();
   final db = FirebaseFirestore.instance;
   late String establecimiento;
+  
 
   var mesas = <MesaModel>[].obs;
   var platillos = <PlatilloModel>[].obs;

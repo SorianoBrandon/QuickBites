@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:quickbites_app/screens/waiter/seleccion_mesa.dart';
-import 'package:quickbites_app/screens/waiter/menu_waiter.dart';
 import 'package:get/get.dart';
+import 'package:quickbites_app/screens/waiter/seleccion_mesa.dart';
 import 'package:quickbites_app/src/controllers/camarero_controller.dart';
+import 'package:quickbites_app/screens/waiter/menu_waiter.dart';
 
 class HomePageWaiter extends StatelessWidget {
   const HomePageWaiter({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // Inicializando el controlador de camarero con GetX
     final camareroController = Get.put(CamareroController());
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mesero'),
@@ -19,7 +18,6 @@ class HomePageWaiter extends StatelessWidget {
         backgroundColor: Colors.orange,
       ),
       body: StreamBuilder<List<Map<String, dynamic>>>(
-        // Usando el stream del controlador
         stream: camareroController.getOccupiedTablesStream(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -31,16 +29,12 @@ class HomePageWaiter extends StatelessWidget {
           }
 
           final occupiedTables = snapshot.data ?? [];
-          
-          // Ordenando las mesas por número
-          occupiedTables.sort((a, b) => (a['number'] as num).compareTo(b['number'] as num));
 
           return Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Encabezado de mesas ocupadas
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -62,8 +56,6 @@ class HomePageWaiter extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 16),
-                
-                // Lista de mesas ocupadas
                 Expanded(
                   child: occupiedTables.isEmpty
                       ? const Center(child: Text('No hay mesas ocupadas actualmente.'))
@@ -71,13 +63,7 @@ class HomePageWaiter extends StatelessWidget {
                           itemCount: occupiedTables.length,
                           itemBuilder: (context, index) {
                             final table = occupiedTables[index];
-                            
-                            // Usar el controlador para formatear la hora (lo añadi al camarero_controller.dart)
-                            String horaOcupada = "Ocupada";
-                            if (table['occupiedAt'] != null) {
-                              horaOcupada = camareroController.formatOccupiedTime(table['occupiedAt']);
-                            }
-                            
+                            String horaOcupada = camareroController.formatOccupiedTime(table['occupiedAt']);
                             return Card(
                               margin: const EdgeInsets.only(bottom: 12),
                               elevation: 2,
@@ -87,13 +73,12 @@ class HomePageWaiter extends StatelessWidget {
                               ),
                               child: InkWell(
                                 onTap: () {
-                                  // Navegar a la pantalla de menú
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => MenuScreen(
+                                      builder: (context) => MenuWaiter(
                                         mesaId: table['id'],
-                                        mesaNumber: table['number'].toString(),
+                                        mesaNumber: table['numero'].toString(),
                                       ),
                                     ),
                                   );
@@ -102,12 +87,11 @@ class HomePageWaiter extends StatelessWidget {
                                   padding: const EdgeInsets.all(16.0),
                                   child: Row(
                                     children: [
-                                      // Círculo con número de mesa
                                       CircleAvatar(
                                         radius: 25,
                                         backgroundColor: Colors.orange,
                                         child: Text(
-                                          table['number'].toString(),
+                                          table['numero'].toString(),
                                           style: const TextStyle(
                                             color: Colors.white,
                                             fontSize: 20,
@@ -116,13 +100,12 @@ class HomePageWaiter extends StatelessWidget {
                                         ),
                                       ),
                                       const SizedBox(width: 16),
-                                      // Información de la mesa
                                       Expanded(
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              'Mesa No. ${table['number'].toString()}',
+                                              'Mesa No. ${table['numero'].toString()}',
                                               style: const TextStyle(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.bold,
@@ -138,7 +121,6 @@ class HomePageWaiter extends StatelessWidget {
                                           ],
                                         ),
                                       ),
-                                      // Etiqueta de OCUPADA y flecha
                                       Column(
                                         children: [
                                           Container(
@@ -171,9 +153,7 @@ class HomePageWaiter extends StatelessWidget {
                           },
                         ),
                 ),
-                
                 const SizedBox(height: 16),
-                // Botón para seleccionar nueva mesa
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
@@ -183,21 +163,20 @@ class HomePageWaiter extends StatelessWidget {
                         MaterialPageRoute(
                           builder: (context) => SeleccionMesaScreen(
                             onMesaSeleccionada: (mesaId, mesaNumber) async {
-                              // Usar el controlador para seleccionar la mesa
-                              print("QUESOOOOOO $mesaId $mesaNumber ");
+                              print("OLAAAAAAAAAAAAAAAAAAA  $mesaId $mesaNumber  ");
                               await camareroController.seleccionarMesa(mesaId, mesaNumber);
-                              
-                              if (context.mounted) {  // Verificar que el contexto siga siendo válido
+                              print("OLAAAAAAAAAAAAAAAAAAA  $mesaId $mesaNumber  ");
+
+                              Navigator.pop(context);
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => MenuScreen(
+                                  builder: (context) => MenuWaiter(
                                     mesaId: mesaId,
                                     mesaNumber: mesaNumber,
                                   ),
                                 ),
                               );
-                            }
                             },
                           ),
                         ),
