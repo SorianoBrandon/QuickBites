@@ -186,16 +186,16 @@ class CamareroController extends GetxController {
       'status': 'occupied',
       'occupiedAt': FieldValue.serverTimestamp(),
     });
-     await db
-      .collection(establecimiento)
-      .doc('mesas')
-      .collection('items')
-      .doc(mesaId)
-      .update({
-        'ocupada': true,
-        'status': 'occupied',
-        'occupiedAt': FieldValue.serverTimestamp(),
-      });
+    await db
+        .collection(establecimiento)
+        .doc('mesas')
+        .collection('items')
+        .doc(mesaId)
+        .update({
+          'ocupada': true,
+          'status': 'occupied',
+          'occupiedAt': FieldValue.serverTimestamp(),
+        });
   }
 
   Future<void> mandarAFacturar(String mesaId, String infoExtra) async {

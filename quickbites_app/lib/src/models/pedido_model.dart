@@ -2,7 +2,7 @@ import 'package:quickbites_app/src/env/hash.dart';
 
 class PedidoModel {
   final String id;
-  final String mesaId;
+  final String nombreMesa;
   final String codigoCamarero;
   final String estado; // pendiente, preparado, etc.
   final List<Map<String, dynamic>> productos; // id, nombre, cantidad, precio
@@ -11,7 +11,7 @@ class PedidoModel {
 
   PedidoModel({
     String? id,
-    required this.mesaId,
+    required this.nombreMesa,
     required this.codigoCamarero,
     required this.estado,
     required this.productos,
@@ -20,12 +20,12 @@ class PedidoModel {
   }) : id =
            id ??
            CRC32Hasher().generar(
-             '$mesaId-${hora.millisecondsSinceEpoch}-$codigoCamarero',
+             '$nombreMesa-${hora.millisecondsSinceEpoch}-$codigoCamarero',
            );
 
   factory PedidoModel.fromJson(Map<String, dynamic> json) => PedidoModel(
     id: json['id'],
-    mesaId: json['mesaId'],
+    nombreMesa: json['mesaId'],
     codigoCamarero: json['codigoCamarero'],
     estado: json['estado'],
     productos: List<Map<String, dynamic>>.from(json['productos']),
@@ -35,7 +35,7 @@ class PedidoModel {
 
   Map<String, dynamic> toJson() => {
     'id': id,
-    'mesaId': mesaId,
+    'mesaId': nombreMesa,
     'codigoCamarero': codigoCamarero,
     'estado': estado,
     'productos': productos,

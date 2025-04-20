@@ -5,28 +5,24 @@ import 'package:quickbites_app/src/controllers/camarero_controller.dart';
 import 'package:quickbites_app/src/models/pedido_model.dart';
 import 'package:quickbites_app/src/models/platillo_model.dart';
 
-
 class MenuScreen extends StatefulWidget {
   final String mesaId;
   final String mesaNumber;
 
-  const MenuScreen({
-    super.key,
-    required this.mesaId,
-    required this.mesaNumber,
-  });
+  const MenuScreen({super.key, required this.mesaId, required this.mesaNumber});
 
   @override
   State<MenuScreen> createState() => _MenuScreenState();
 }
 
-class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateMixin {
+class _MenuScreenState extends State<MenuScreen>
+    with SingleTickerProviderStateMixin {
   final List<Map<String, dynamic>> _carrito = [];
   final CamareroController _camareroController = Get.find<CamareroController>();
   bool _enviandoACocina = false;
   late TabController _tabController;
   String? _capacidadMesa;
-  
+
   // Este mapa conecta las categorías con sus íconos correspondientes
   final Map<String, IconData> _iconosCategorias = {
     'Postres': Icons.icecream,
@@ -44,39 +40,45 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
 
   // Lista dinámica de categorías que se cargará desde Firestore
   final RxList<Map<String, dynamic>> _categorias = <Map<String, dynamic>>[].obs;
-  
+
   Future<void> _cargarCategorias() async {
     // Usa el establecimiento del controlador
     final establecimiento = _camareroController.establecimiento;
-    
-    final snapshot = await FirebaseFirestore.instance
-        .collection(establecimiento)
-        .doc('categorias')
-        .collection('items')
-        .get();
-    
+
+    final snapshot =
+        await FirebaseFirestore.instance
+            .collection(establecimiento)
+            .doc('categorias')
+            .collection('items')
+            .get();
+
     // Crea la lista de categorías con sus íconos
-    final categorias = snapshot.docs.map((doc) {
-      final data = doc.data();
-      final nombre = data['nombre'] as String;
-      
-      return {
-        'nombre': nombre,
-        'icono': _iconosCategorias[nombre] ?? Icons.restaurant_menu,
-        'coleccion': nombre,
-      };
-    }).toList();
-    
+    final categorias =
+        snapshot.docs.map((doc) {
+          final data = doc.data();
+          final nombre = data['nombre'] as String;
+
+          return {
+            'nombre': nombre,
+            'icono': _iconosCategorias[nombre] ?? Icons.restaurant_menu,
+            'coleccion': nombre,
+          };
+        }).toList();
+
     // Si no hay categorías definidas, usa las por defecto
     if (categorias.isEmpty) {
       categorias.addAll([
         {'nombre': 'Postres', 'icono': Icons.icecream, 'coleccion': 'Postres'},
         {'nombre': 'Pizza', 'icono': Icons.local_pizza, 'coleccion': 'Pizza'},
         {'nombre': 'Pasta', 'icono': Icons.restaurant, 'coleccion': 'Pasta'},
-        {'nombre': 'Bebidas', 'icono': Icons.coffee_outlined, 'coleccion': 'Bebidas'},
+        {
+          'nombre': 'Bebidas',
+          'icono': Icons.coffee_outlined,
+          'coleccion': 'Bebidas',
+        },
       ]);
     }
-    
+
     setState(() {
       _categorias.assignAll(categorias);
       _tabController = TabController(length: _categorias.length, vsync: this);
@@ -91,25 +93,28 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
 
   Future<void> _cargarDatosMesa() async {
     try {
-      final mesaSnapshot = await FirebaseFirestore.instance
-          .collection(_camareroController.establecimiento)
-          .doc('mesas')
-          .collection('items')
-          .doc(widget.mesaId)
-          .get();
-      
+      final mesaSnapshot =
+          await FirebaseFirestore.instance
+              .collection(_camareroController.establecimiento)
+              .doc('mesas')
+              .collection('items')
+              .doc(widget.mesaId)
+              .get();
+
       if (mesaSnapshot.exists) {
         setState(() {
           _capacidadMesa = mesaSnapshot.data()?['capacidad']?.toString() ?? '2';
         });
       } else {
         // Fallback a la nueva estructura si no existe en la antigua
-        final tableSnapshot = await FirebaseFirestore.instance
-          .collection('tables')
-          .doc(widget.mesaId)
-          .get();
+        final tableSnapshot =
+            await FirebaseFirestore.instance
+                .collection('tables')
+                .doc(widget.mesaId)
+                .get();
         setState(() {
-          _capacidadMesa = tableSnapshot.data()?['capacidad']?.toString() ?? '2';
+          _capacidadMesa =
+              tableSnapshot.data()?['capacidad']?.toString() ?? '2';
         });
       }
     } catch (e) {
@@ -154,10 +159,7 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                     ),
                     child: Text(
                       _carrito.length.toString(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                      ),
+                      style: const TextStyle(color: Colors.white, fontSize: 12),
                     ),
                   ),
                 ),
@@ -166,12 +168,13 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
         ],
         bottom: TabBar(
           controller: _tabController,
-          tabs: _categorias.map((categoria) {
-            return Tab(
-              icon: Icon(categoria['icono']),
-              text: categoria['nombre'],
-            );
-          }).toList(),
+          tabs:
+              _categorias.map((categoria) {
+                return Tab(
+                  icon: Icon(categoria['icono']),
+                  text: categoria['nombre'],
+                );
+              }).toList(),
           indicatorColor: Colors.white,
           labelColor: Colors.white,
         ),
@@ -197,12 +200,13 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                     ),
                     const SizedBox(height: 4),
                     StreamBuilder<DocumentSnapshot>(
-                      stream: FirebaseFirestore.instance
-                          .collection(_camareroController.establecimiento)
-                          .doc('mesas')
-                          .collection('items')
-                          .doc(widget.mesaId)
-                          .snapshots(),
+                      stream:
+                          FirebaseFirestore.instance
+                              .collection(_camareroController.establecimiento)
+                              .doc('mesas')
+                              .collection('items')
+                              .doc(widget.mesaId)
+                              .snapshots(),
                       builder: (context, snapshot) {
                         if (!snapshot.hasData) {
                           return const Text(
@@ -233,9 +237,10 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
           Expanded(
             child: TabBarView(
               controller: _tabController,
-              children: _categorias.map((categoria) {
-                return _buildCategoriaMenu(categoria['nombre']);
-              }).toList(),
+              children:
+                  _categorias.map((categoria) {
+                    return _buildCategoriaMenu(categoria['nombre']);
+                  }).toList(),
             ),
           ),
           // Botón "A cocinar"
@@ -243,7 +248,8 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: ElevatedButton.icon(
-                onPressed: _enviandoACocina ? null : () => _enviarACocina(context),
+                onPressed:
+                    _enviandoACocina ? null : () => _enviarACocina(context),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange,
                   minimumSize: const Size(double.infinity, 50),
@@ -251,13 +257,17 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                icon: _enviandoACocina 
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                      )
-                    : const Icon(Icons.local_dining, color: Colors.white),
+                icon:
+                    _enviandoACocina
+                        ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                        : const Icon(Icons.local_dining, color: Colors.white),
                 label: Text(
                   _enviandoACocina ? 'ENVIANDO...' : 'A COCINAR',
                   style: const TextStyle(
@@ -280,14 +290,15 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
 
   Widget _buildCategoriaMenu(String categoria) {
     final establecimiento = _camareroController.establecimiento;
-    
+
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection(establecimiento)
-          .doc('platillos')
-          .collection('items')
-          .where('categoria', isEqualTo: categoria)
-          .snapshots(),
+      stream:
+          FirebaseFirestore.instance
+              .collection(establecimiento)
+              .doc('platillos')
+              .collection('items')
+              .where('categoria', isEqualTo: categoria)
+              .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Center(child: Text('Error al cargar productos de $categoria'));
@@ -300,7 +311,9 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
         final items = snapshot.data!.docs;
 
         if (items.isEmpty) {
-          return Center(child: Text('No hay productos disponibles en $categoria'));
+          return Center(
+            child: Text('No hay productos disponibles en $categoria'),
+          );
         }
 
         return ListView.builder(
@@ -309,13 +322,13 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
           itemBuilder: (context, index) {
             final data = items[index].data() as Map<String, dynamic>;
             final PlatilloModel platillo = PlatilloModel.fromJson({
-              'id': items[index].id, 
+              'id': items[index].id,
               'nombre': data['nombre'] ?? 'Producto sin nombre',
               'precio': (data['precio'] ?? 0.0),
               'categoria': data['categoria'] ?? categoria,
               'subcategoria': data['subcategoria'] ?? '',
             });
-            
+
             return Card(
               elevation: 3,
               margin: const EdgeInsets.only(bottom: 16),
@@ -378,7 +391,11 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                                 ),
                               ),
                               IconButton(
-                                icon: const Icon(Icons.add_circle, color: Colors.orange, size: 36),
+                                icon: const Icon(
+                                  Icons.add_circle,
+                                  color: Colors.orange,
+                                  size: 36,
+                                ),
                                 onPressed: () {
                                   setState(() {
                                     _carrito.add({
@@ -391,7 +408,9 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                                   });
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text('${platillo.nombre} agregado al pedido'),
+                                      content: Text(
+                                        '${platillo.nombre} agregado al pedido',
+                                      ),
                                       duration: const Duration(seconds: 1),
                                     ),
                                   );
@@ -421,7 +440,7 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
     for (var item in _carrito) {
       total += (item['precio'] * item['cantidad']);
     }
-    
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -439,7 +458,10 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                 children: [
                   Text(
                     'Tu Pedido - Mesa ${widget.mesaNumber}',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close),
@@ -449,84 +471,104 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
               ),
               const Divider(),
               Expanded(
-                child: _carrito.isEmpty 
-                  ? const Center(
-                      child: Text('No hay productos en el carrito',
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
-                    ))
-                  : ListView.builder(
-                      itemCount: _carrito.length,
-                      itemBuilder: (context, index) {
-                        final item = _carrito[index];
-                        return Card(
-                          margin: const EdgeInsets.only(bottom: 10),
-                          elevation: 2,
-                          child: ListTile(
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            leading: CircleAvatar(
-                              backgroundColor: Colors.orange.withOpacity(0.2),
-                              child: Icon(
-                                _getIconForCategory(item['categoria'] ?? ''),
-                                color: Colors.orange,
-                              ),
-                            ),
-                            title: Text(item['nombre']),
-                            subtitle: Row(
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.remove_circle_outline, size: 20),
-                                  onPressed: () {
-                                    setState(() {
-                                      if (item['cantidad'] > 1) {
-                                        item['cantidad']--;
-                                      } else {
-                                        _carrito.removeAt(index);
-                                      }
-                                    });
-                                    Navigator.pop(context);
-                                    _mostrarCarrito(context);
-                                  },
+                child:
+                    _carrito.isEmpty
+                        ? const Center(
+                          child: Text(
+                            'No hay productos en el carrito',
+                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                          ),
+                        )
+                        : ListView.builder(
+                          itemCount: _carrito.length,
+                          itemBuilder: (context, index) {
+                            final item = _carrito[index];
+                            return Card(
+                              margin: const EdgeInsets.only(bottom: 10),
+                              elevation: 2,
+                              child: ListTile(
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
                                 ),
-                                Text('${item['cantidad']}'),
-                                IconButton(
-                                  icon: const Icon(Icons.add_circle_outline, size: 20),
-                                  onPressed: () {
-                                    setState(() {
-                                      item['cantidad']++;
-                                    });
-                                    Navigator.pop(context);
-                                    _mostrarCarrito(context);
-                                  },
-                                ),
-                              ],
-                            ),
-                            trailing: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  '\$${(item['precio'] * item['cantidad']).toStringAsFixed(2)}',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
+                                leading: CircleAvatar(
+                                  backgroundColor: Colors.orange.withOpacity(
+                                    0.2,
+                                  ),
+                                  child: Icon(
+                                    _getIconForCategory(
+                                      item['categoria'] ?? '',
+                                    ),
+                                    color: Colors.orange,
                                   ),
                                 ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
-                                  onPressed: () {
-                                    setState(() {
-                                      _carrito.removeAt(index);
-                                    });
-                                    Navigator.pop(context);
-                                    _mostrarCarrito(context);
-                                  },
+                                title: Text(item['nombre']),
+                                subtitle: Row(
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.remove_circle_outline,
+                                        size: 20,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          if (item['cantidad'] > 1) {
+                                            item['cantidad']--;
+                                          } else {
+                                            _carrito.removeAt(index);
+                                          }
+                                        });
+                                        Navigator.pop(context);
+                                        _mostrarCarrito(context);
+                                      },
+                                    ),
+                                    Text('${item['cantidad']}'),
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.add_circle_outline,
+                                        size: 20,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          item['cantidad']++;
+                                        });
+                                        Navigator.pop(context);
+                                        _mostrarCarrito(context);
+                                      },
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                                trailing: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      '\$${(item['precio'] * item['cantidad']).toStringAsFixed(2)}',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.delete_outline,
+                                        color: Colors.red,
+                                        size: 20,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          _carrito.removeAt(index);
+                                        });
+                                        Navigator.pop(context);
+                                        _mostrarCarrito(context);
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
               ),
               const Divider(),
               Padding(
@@ -555,10 +597,13 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _carrito.isEmpty ? null : () {
-                    Navigator.pop(context);
-                    _enviarACocina(context);
-                  },
+                  onPressed:
+                      _carrito.isEmpty
+                          ? null
+                          : () {
+                            Navigator.pop(context);
+                            _enviarACocina(context);
+                          },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -566,16 +611,17 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: _enviandoACocina 
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text(
-                        'A COCINAR',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
+                  child:
+                      _enviandoACocina
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
+                            'A COCINAR',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                 ),
               ),
             ],
@@ -605,10 +651,11 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
       }
 
       // Generar ID único para el pedido
-      final pedidoId = FirebaseFirestore.instance.collection('pedidos').doc().id;
-      
+      final pedidoId =
+          FirebaseFirestore.instance.collection('pedidos').doc().id;
+
       // Crear el objeto PedidoModel
-      final pedidoModel = PedidoModel(
+      /*final pedidoModel = PedidoModel(
         id: pedidoId,
         mesaId: widget.mesaId,
         codigoCamarero: _camareroController.codigoCamarero,
@@ -624,7 +671,7 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
       );
 
       // Usar el tomarPedido del controlador
-      await _camareroController.tomarPedido(pedidoModel, widget.mesaId);
+      await _camareroController.tomarPedido(pedidoModel, widget.mesaId);*/
 
       // Mostrar mensaje de éxito
       ScaffoldMessenger.of(context).showSnackBar(
@@ -673,9 +720,10 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
             TextButton(
               onPressed: () async {
                 Navigator.of(context).pop(); // Cierra el diálogo
-                
-                final TextEditingController infoExtraController = TextEditingController();
-                
+
+                final TextEditingController infoExtraController =
+                    TextEditingController();
+
                 // Mostrar diálogo para pedir información adicional
                 showDialog(
                   context: context,
@@ -692,21 +740,25 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                       actions: [
                         TextButton(
                           onPressed: () async {
-                            Navigator.of(context).pop(); // Cierra el diálogo de info
-                            
+                            Navigator.of(
+                              context,
+                            ).pop(); // Cierra el diálogo de info
+
                             try {
                               // Enviar a facturar con el controlador
                               await _camareroController.mandarAFacturar(
-                                widget.mesaId, 
-                                infoExtraController.text
+                                widget.mesaId,
+                                infoExtraController.text,
                               );
-                              
+
                               // Volver a la pantalla anterior
                               Navigator.pop(context);
-                              
+
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text('Mesa liberada y pedido enviado a facturación'),
+                                  content: Text(
+                                    'Mesa liberada y pedido enviado a facturación',
+                                  ),
                                   backgroundColor: Colors.green,
                                 ),
                               );

@@ -16,7 +16,9 @@ void main() async {
   await GetStorage.init();
   await userController.initUserDataOnAppStart();
 
-  runApp(const MainApp());
+  runApp(
+    GetMaterialApp(debugShowCheckedModeBanner: false, home: const MainApp()),
+  );
 }
 
 class MainApp extends StatelessWidget {
