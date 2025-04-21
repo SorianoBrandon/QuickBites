@@ -15,7 +15,6 @@ void main() async {
 
   await GetStorage.init();
   await userController.initUserDataOnAppStart();
-
   runApp(
     GetMaterialApp(debugShowCheckedModeBanner: false, home: const MainApp()),
   );

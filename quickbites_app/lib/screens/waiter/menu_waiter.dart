@@ -9,17 +9,15 @@ class MenuWaiter extends StatefulWidget {
   final String mesaId;
   final String mesaNumber;
 
-  const MenuWaiter({
-    Key? key,
-    required this.mesaId,
-    required this.mesaNumber,
-  }) : super(key: key);
+  const MenuWaiter({Key? key, required this.mesaId, required this.mesaNumber})
+    : super(key: key);
 
   @override
   State<MenuWaiter> createState() => _MenuWaiterState();
 }
 
-class _MenuWaiterState extends State<MenuWaiter> with SingleTickerProviderStateMixin {
+class _MenuWaiterState extends State<MenuWaiter>
+    with SingleTickerProviderStateMixin {
   final List<Map<String, dynamic>> _carrito = [];
   final CamareroController _camareroController = Get.find<CamareroController>();
   bool _enviandoACocina = false;
@@ -45,29 +43,35 @@ class _MenuWaiterState extends State<MenuWaiter> with SingleTickerProviderStateM
   Future<void> _cargarCategorias() async {
     final establecimiento = _camareroController.establecimiento;
 
-    final snapshot = await FirebaseFirestore.instance
-        .collection(establecimiento)
-        .doc('categorias')
-        .collection('items')
-        .get();
+    final snapshot =
+        await FirebaseFirestore.instance
+            .collection(establecimiento)
+            .doc('categorias')
+            .collection('items')
+            .get();
 
-    final categorias = snapshot.docs.map((doc) {
-      final data = doc.data();
-      final nombre = data['nombre'] as String;
+    final categorias =
+        snapshot.docs.map((doc) {
+          final data = doc.data();
+          final nombre = data['nombre'] as String;
 
-      return {
-        'nombre': nombre,
-        'icono': _iconosCategorias[nombre] ?? Icons.restaurant_menu,
-        'coleccion': nombre,
-      };
-    }).toList();
+          return {
+            'nombre': nombre,
+            'icono': _iconosCategorias[nombre] ?? Icons.restaurant_menu,
+            'coleccion': nombre,
+          };
+        }).toList();
 
     if (categorias.isEmpty) {
       categorias.addAll([
         {'nombre': 'Postres', 'icono': Icons.icecream, 'coleccion': 'Postres'},
         {'nombre': 'Pizza', 'icono': Icons.local_pizza, 'coleccion': 'Pizza'},
         {'nombre': 'Pasta', 'icono': Icons.restaurant, 'coleccion': 'Pasta'},
-        {'nombre': 'Bebidas', 'icono': Icons.coffee_outlined, 'coleccion': 'Bebidas'},
+        {
+          'nombre': 'Bebidas',
+          'icono': Icons.coffee_outlined,
+          'coleccion': 'Bebidas',
+        },
       ]);
     }
 
@@ -85,21 +89,22 @@ class _MenuWaiterState extends State<MenuWaiter> with SingleTickerProviderStateM
 
   Future<void> _cargarDatosMesa() async {
     try {
-      final mesaSnapshot = await FirebaseFirestore.instance
-          .collection(_camareroController.establecimiento)
-          .doc('mesas')
-          .collection('items')
-          .doc(widget.mesaId)
-          .get();
+      final mesaSnapshot =
+          await FirebaseFirestore.instance
+              .collection(_camareroController.establecimiento)
+              .doc('mesas')
+              .collection('items')
+              .doc(widget.mesaId)
+              .get();
 
       if (mesaSnapshot.exists) {
         setState(() {
           _capacidadMesa = mesaSnapshot.data()?['capacidad']?.toString() ?? '2';
         });
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Mesa no encontrada')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Mesa no encontrada')));
       }
     } catch (e) {
       debugPrint('Error al cargar datos de la mesa: $e');
@@ -126,11 +131,11 @@ class _MenuWaiterState extends State<MenuWaiter> with SingleTickerProviderStateM
         appBar: AppBar(
           title: Text('Menú - Mesa ${int.parse(widget.mesaNumber)}'),
           leading: IconButton(
-            onPressed:() { 
-              //_mostrarDialogoCancelar(context); 
+            onPressed: () {
+              //_mostrarDialogoCancelar(context);
               return Navigator.pop(context);
             },
-            icon: Icon(Icons.backspace_rounded)
+            icon: Icon(Icons.backspace_rounded),
           ),
           backgroundColor: Colors.redAccent,
           actions: [
@@ -166,12 +171,13 @@ class _MenuWaiterState extends State<MenuWaiter> with SingleTickerProviderStateM
           ],
           bottom: TabBar(
             controller: _tabController,
-            tabs: _categorias.map((categoria) {
-              return Tab(
-                icon: Icon(categoria['icono']),
-                text: categoria['nombre'],
-              );
-            }).toList(),
+            tabs:
+                _categorias.map((categoria) {
+                  return Tab(
+                    icon: Icon(categoria['icono']),
+                    text: categoria['nombre'],
+                  );
+                }).toList(),
             indicatorColor: Colors.white,
             labelColor: Colors.white,
           ),
@@ -196,12 +202,13 @@ class _MenuWaiterState extends State<MenuWaiter> with SingleTickerProviderStateM
                       ),
                       const SizedBox(height: 4),
                       StreamBuilder<DocumentSnapshot>(
-                        stream: FirebaseFirestore.instance
-                            .collection(_camareroController.establecimiento)
-                            .doc('mesas')
-                            .collection('items')
-                            .doc(widget.mesaId)
-                            .snapshots(),
+                        stream:
+                            FirebaseFirestore.instance
+                                .collection(_camareroController.establecimiento)
+                                .doc('mesas')
+                                .collection('items')
+                                .doc(widget.mesaId)
+                                .snapshots(),
                         builder: (context, snapshot) {
                           if (!snapshot.hasData) {
                             return const Text(
@@ -231,16 +238,18 @@ class _MenuWaiterState extends State<MenuWaiter> with SingleTickerProviderStateM
             Expanded(
               child: TabBarView(
                 controller: _tabController,
-                children: _categorias.map((categoria) {
-                  return _buildCategoriaMenu(categoria['nombre']);
-                }).toList(),
+                children:
+                    _categorias.map((categoria) {
+                      return _buildCategoriaMenu(categoria['nombre']);
+                    }).toList(),
               ),
             ),
             if (_carrito.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: ElevatedButton.icon(
-                  onPressed: _enviandoACocina ? null : () => _enviarACocina(context),
+                  onPressed:
+                      _enviandoACocina ? null : () => _enviarACocina(context),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
                     minimumSize: const Size(double.infinity, 50),
@@ -248,13 +257,17 @@ class _MenuWaiterState extends State<MenuWaiter> with SingleTickerProviderStateM
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  icon: _enviandoACocina
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                        )
-                      : const Icon(Icons.local_dining, color: Colors.white),
+                  icon:
+                      _enviandoACocina
+                          ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                          : const Icon(Icons.local_dining, color: Colors.white),
                   label: Text(
                     _enviandoACocina ? 'ENVIANDO...' : 'A COCINAR',
                     style: const TextStyle(
@@ -280,12 +293,13 @@ class _MenuWaiterState extends State<MenuWaiter> with SingleTickerProviderStateM
     final establecimiento = _camareroController.establecimiento;
 
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection(establecimiento)
-          .doc('platillos')
-          .collection('items')
-          .where('categoria', isEqualTo: categoria)
-          .snapshots(),
+      stream:
+          FirebaseFirestore.instance
+              .collection(establecimiento)
+              .doc('platillos')
+              .collection('items')
+              .where('categoria', isEqualTo: categoria)
+              .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Center(child: Text('Error al cargar productos de $categoria'));
@@ -298,7 +312,9 @@ class _MenuWaiterState extends State<MenuWaiter> with SingleTickerProviderStateM
         final items = snapshot.data!.docs;
 
         if (items.isEmpty) {
-          return Center(child: Text('No hay productos disponibles en $categoria'));
+          return Center(
+            child: Text('No hay productos disponibles en $categoria'),
+          );
         }
 
         return ListView.builder(
@@ -375,7 +391,11 @@ class _MenuWaiterState extends State<MenuWaiter> with SingleTickerProviderStateM
                                 ),
                               ),
                               IconButton(
-                                icon: const Icon(Icons.add_circle, color: Colors.orange, size: 36),
+                                icon: const Icon(
+                                  Icons.add_circle,
+                                  color: Colors.orange,
+                                  size: 36,
+                                ),
                                 onPressed: () {
                                   setState(() {
                                     _carrito.add({
@@ -388,7 +408,9 @@ class _MenuWaiterState extends State<MenuWaiter> with SingleTickerProviderStateM
                                   });
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text('${platillo.nombre} agregado al pedido'),
+                                      content: Text(
+                                        '${platillo.nombre} agregado al pedido',
+                                      ),
                                       duration: const Duration(seconds: 1),
                                     ),
                                   );
@@ -436,7 +458,10 @@ class _MenuWaiterState extends State<MenuWaiter> with SingleTickerProviderStateM
                 children: [
                   Text(
                     'Tu Pedido - Mesa ${widget.mesaNumber}',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close),
@@ -446,86 +471,104 @@ class _MenuWaiterState extends State<MenuWaiter> with SingleTickerProviderStateM
               ),
               const Divider(),
               Expanded(
-                child: _carrito.isEmpty
-                    ? const Center(
-                        child: Text(
-                          'No hay productos en el carrito',
-                          style: TextStyle(fontSize: 16, color: Colors.grey),
-                        ),
-                      )
-                    : ListView.builder(
-                        itemCount: _carrito.length,
-                        itemBuilder: (context, index) {
-                          final item = _carrito[index];
-                          return Card(
-                            margin: const EdgeInsets.only(bottom: 10),
-                            elevation: 2,
-                            child: ListTile(
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              leading: CircleAvatar(
-                                backgroundColor: Colors.orange.withOpacity(0.2),
-                                child: Icon(
-                                  _getIconForCategory(item['categoria'] ?? ''),
-                                  color: Colors.orange,
+                child:
+                    _carrito.isEmpty
+                        ? const Center(
+                          child: Text(
+                            'No hay productos en el carrito',
+                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                          ),
+                        )
+                        : ListView.builder(
+                          itemCount: _carrito.length,
+                          itemBuilder: (context, index) {
+                            final item = _carrito[index];
+                            return Card(
+                              margin: const EdgeInsets.only(bottom: 10),
+                              elevation: 2,
+                              child: ListTile(
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                                leading: CircleAvatar(
+                                  backgroundColor: Colors.orange.withOpacity(
+                                    0.2,
+                                  ),
+                                  child: Icon(
+                                    _getIconForCategory(
+                                      item['categoria'] ?? '',
+                                    ),
+                                    color: Colors.orange,
+                                  ),
+                                ),
+                                title: Text(item['nombre']),
+                                subtitle: Row(
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.remove_circle_outline,
+                                        size: 20,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          if (item['cantidad'] > 1) {
+                                            item['cantidad']--;
+                                          } else {
+                                            _carrito.removeAt(index);
+                                          }
+                                        });
+                                        Navigator.pop(context);
+                                        _mostrarCarrito(context);
+                                      },
+                                    ),
+                                    Text('${item['cantidad']}'),
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.add_circle_outline,
+                                        size: 20,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          item['cantidad']++;
+                                        });
+                                        Navigator.pop(context);
+                                        _mostrarCarrito(context);
+                                      },
+                                    ),
+                                  ],
+                                ),
+                                trailing: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      '\$${(item['precio'] * item['cantidad']).toStringAsFixed(2)}',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.delete_outline,
+                                        color: Colors.red,
+                                        size: 20,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          _carrito.removeAt(index);
+                                        });
+                                        Navigator.pop(context);
+                                        _mostrarCarrito(context);
+                                      },
+                                    ),
+                                  ],
                                 ),
                               ),
-                              title: Text(item['nombre']),
-                              subtitle: Row(
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.remove_circle_outline, size: 20),
-                                    onPressed: () {
-                                      setState(() {
-                                        if (item['cantidad'] > 1) {
-                                          item['cantidad']--;
-                                        } else {
-                                          _carrito.removeAt(index);
-                                        }
-                                      });
-                                      Navigator.pop(context);
-                                      _mostrarCarrito(context);
-                                    },
-                                  ),
-                                  Text('${item['cantidad']}'),
-                                  IconButton(
-                                    icon: const Icon(Icons.add_circle_outline, size: 20),
-                                    onPressed: () {
-                                      setState(() {
-                                        item['cantidad']++;
-                                      });
-                                      Navigator.pop(context);
-                                      _mostrarCarrito(context);
-                                    },
-                                  ),
-                                ],
-                              ),
-                              trailing: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    '\$${(item['precio'] * item['cantidad']).toStringAsFixed(2)}',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
-                                    onPressed: () {
-                                      setState(() {
-                                        _carrito.removeAt(index);
-                                      });
-                                      Navigator.pop(context);
-                                      _mostrarCarrito(context);
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
+                            );
+                          },
+                        ),
               ),
               const Divider(),
               Padding(
@@ -554,10 +597,13 @@ class _MenuWaiterState extends State<MenuWaiter> with SingleTickerProviderStateM
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _carrito.isEmpty ? null : () {
-                    Navigator.pop(context);
-                    _enviarACocina(context);
-                  },
+                  onPressed:
+                      _carrito.isEmpty
+                          ? null
+                          : () {
+                            Navigator.pop(context);
+                            _enviarACocina(context);
+                          },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -565,16 +611,17 @@ class _MenuWaiterState extends State<MenuWaiter> with SingleTickerProviderStateM
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: _enviandoACocina
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text(
-                          'A COCINAR',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                  child:
+                      _enviandoACocina
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
+                            'A COCINAR',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
                 ),
               ),
             ],
@@ -602,19 +649,25 @@ class _MenuWaiterState extends State<MenuWaiter> with SingleTickerProviderStateM
         total += (item['precio'] * item['cantidad']);
       }
 
-      final pedidoId = FirebaseFirestore.instance.collection('pedidos').doc().id;
+      final pedidoId =
+          FirebaseFirestore.instance.collection('pedidos').doc().id;
 
       final pedidoModel = PedidoModel(
         id: pedidoId,
         mesaId: widget.mesaId,
         codigoCamarero: _camareroController.codigoCamarero,
         estado: 'pendiente',
-        productos: _carrito.map((item) => {
-          'id': item['id'],
-          'nombre': item['nombre'],
-          'precio': item['precio'],
-          'cantidad': item['cantidad'],
-        }).toList(),
+        productos:
+            _carrito
+                .map(
+                  (item) => {
+                    'id': item['id'],
+                    'nombre': item['nombre'],
+                    'precio': item['precio'],
+                    'cantidad': item['cantidad'],
+                  },
+                )
+                .toList(),
         hora: DateTime.now(),
         total: total,
       );
@@ -693,7 +746,9 @@ class _MenuWaiterState extends State<MenuWaiter> with SingleTickerProviderStateM
           actions: [
             TextButton(
               onPressed: () async {
-                Navigator.of(dialogContext).pop(); // Cierra el diálogo de facturación
+                Navigator.of(
+                  dialogContext,
+                ).pop(); // Cierra el diálogo de facturación
                 try {
                   await _camareroController.mandarAFacturar(
                     widget.mesaId,
@@ -701,11 +756,15 @@ class _MenuWaiterState extends State<MenuWaiter> with SingleTickerProviderStateM
                   );
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Mesa liberada y pedido enviado a facturación'),
+                      content: Text(
+                        'Mesa liberada y pedido enviado a facturación',
+                      ),
                       backgroundColor: Colors.green,
                     ),
                   );
-                  Navigator.pop(context); // Cierra MenuWaiter y vuelve a HomePageWaiter
+                  Navigator.pop(
+                    context,
+                  ); // Cierra MenuWaiter y vuelve a HomePageWaiter
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -723,7 +782,7 @@ class _MenuWaiterState extends State<MenuWaiter> with SingleTickerProviderStateM
     );
   }
 
-  void _mostrarDialogoCancelar(BuildContext context) {
+  /*void _mostrarDialogoCancelar(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -774,5 +833,5 @@ class _MenuWaiterState extends State<MenuWaiter> with SingleTickerProviderStateM
         );
       },
     );
-  }
+  }*/
 }

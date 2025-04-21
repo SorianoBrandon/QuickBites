@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:quickbites_app/src/controllers/user_controller.dart';
+import 'package:quickbites_app/src/signin/manager/local_tab.dart';
+import 'package:quickbites_app/src/signin/manager/menu_tab.dart';
 import '../models/mesa_model.dart';
 import '../models/platillo_model.dart';
 import '../models/categoria_model.dart';
@@ -10,11 +12,11 @@ class GerenteController extends GetxController {
   final storage = GetStorage();
   final db = FirebaseFirestore.instance;
   late String establecimiento;
-  
 
   var mesas = <MesaModel>[].obs;
   var platillos = <PlatilloModel>[].obs;
   var categorias = <CategoriaModel>[].obs;
+  RxInt selectedView = 0.obs;
 
   @override
   void onInit() {
@@ -25,6 +27,14 @@ class GerenteController extends GetxController {
     cargarPlatillos();
     cargarCategorias();
   }
+
+  final views = [
+    LocalTab(
+      establecimiento: Get.find<UserController>().establecimiento,
+      usuariosRef: UserController().userRef,
+    ),
+    MenuTab(),
+  ];
 
   // 🚪 MESAS
   Future<void> cargarMesas() async {

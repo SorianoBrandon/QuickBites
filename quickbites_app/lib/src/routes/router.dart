@@ -11,28 +11,29 @@ final router = GoRouter(
   routes: [
     GoRoute(path: '/', builder: (context, state) => RedirectScreen()),
     GoRoute(
-      name: 'login',
+      name: 'login'.toUpperCase(),
       path: '/login',
       builder: (context, state) => LoginScreen(),
     ),
     GoRoute(
-      name: 'manager',
+      name: 'manager'.toUpperCase(),
       path: '/manager',
       builder: (context, state) => ManagerScreen(),
+      //routes: [GoRoute(name: 'employee'.toUpperCase(), path: 'employee')],
     ),
     GoRoute(
-      name: 'no-role',
+      name: 'no-role'.toUpperCase(),
       path: '/no-role',
       builder: (context, state) => NoRoleScreen(),
     ),
     GoRoute(
-      name: 'kitchen',
+      name: 'kitchen'.toUpperCase(),
       path: '/kitchen',
-      builder: (context, state) => HomePageKitchen(), 
+      builder: (context, state) => HomePageKitchen(),
     ),
 
     GoRoute(
-      name: 'waiter',
+      name: 'waiter'.toUpperCase(),
       path: '/waiter',
       builder: (context, state) => const HomePageWaiter(),
     ),

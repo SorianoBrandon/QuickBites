@@ -20,22 +20,26 @@ class _SearchEmployeeState extends State<SearchEmployee> {
     final code = _searchController.text.trim().toUpperCase();
     if (code.isNotEmpty) {
       setState(() {
-        _searchResult = widget.usuariosRef.where('codigo', isEqualTo: code).get();
+        _searchResult =
+            widget.usuariosRef.where('codigo', isEqualTo: code).get();
       });
     }
   }
 
-  void _resetSearch() {
+  /*void _resetSearch() {
     setState(() {
       _searchResult = null;
       _searchController.clear();
     });
-  }
+  }*/
 
   void _showEditModal(DocumentSnapshot empleado) {
     final String currentRol = empleado.get('rol') ?? '';
     final List<String> roles = ['Gerente', 'Mesero', 'Cocina'];
-    String selectedRol = currentRol.isNotEmpty && roles.contains(currentRol) ? currentRol : 'Cocina';
+    String selectedRol =
+        currentRol.isNotEmpty && roles.contains(currentRol)
+            ? currentRol
+            : 'Cocina';
 
     showModalBottomSheet(
       context: context,
@@ -62,19 +66,35 @@ class _SearchEmployeeState extends State<SearchEmployee> {
                     const Center(
                       child: Text(
                         'Editar Rol',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
                     const Text(
                       'Rol',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     DropdownButtonFormField<String>(
                       value: selectedRol,
-                      decoration: const InputDecoration(border: OutlineInputBorder()),
-                      items: roles.map((role) => DropdownMenuItem(value: role, child: Text(role))).toList(),
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                      ),
+                      items:
+                          roles
+                              .map(
+                                (role) => DropdownMenuItem(
+                                  value: role,
+                                  child: Text(role),
+                                ),
+                              )
+                              .toList(),
                       onChanged: (value) {
                         if (value != null) {
                           setModalState(() {
@@ -86,14 +106,18 @@ class _SearchEmployeeState extends State<SearchEmployee> {
                     if (errorMessage != null)
                       Padding(
                         padding: const EdgeInsets.only(top: 8.0),
-                        child: Text("$errorMessage", style: const TextStyle(color: Colors.red)),
+                        child: Text(
+                          "$errorMessage",
+                          style: const TextStyle(color: Colors.red),
+                        ),
                       ),
                     const SizedBox(height: 20),
                     Center(
                       child: ElevatedButton(
                         onPressed: () async {
                           try {
-                            final establecimientoGerente = Get.find<UserController>().establecimiento;
+                            final establecimientoGerente =
+                                Get.find<UserController>().establecimiento;
                             await empleado.reference.update({
                               'rol': selectedRol,
                               'establecimiento': establecimientoGerente,
@@ -138,7 +162,10 @@ class _SearchEmployeeState extends State<SearchEmployee> {
       margin: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(vertical: 3.0, horizontal: 3.0),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 3.0,
+          horizontal: 3.0,
+        ),
         leading: const Icon(Icons.person, size: 40, color: Colors.blueAccent),
         title: Text(
           "$nombre $apellido",
@@ -150,8 +177,14 @@ class _SearchEmployeeState extends State<SearchEmployee> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("Puesto: $rol", style: const TextStyle(fontSize: 10, color: Colors.green)),
-              Text("Código: $codigo", style: const TextStyle(fontSize: 10, color: Colors.green)),
+              Text(
+                "Puesto: $rol",
+                style: const TextStyle(fontSize: 10, color: Colors.green),
+              ),
+              Text(
+                "Código: $codigo",
+                style: const TextStyle(fontSize: 10, color: Colors.green),
+              ),
             ],
           ),
         ),
@@ -188,31 +221,35 @@ class _SearchEmployeeState extends State<SearchEmployee> {
             ),
             const SizedBox(height: 20),
             _searchResult == null
-                ? const Center(child: Text('Ingrese un código y presione Buscar'))
+                ? const Center(
+                  child: Text('Ingrese un código y presione Buscar'),
+                )
                 : FutureBuilder<QuerySnapshot>(
-                    future: _searchResult,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasError) {
-                        return const Center(child: Text('Ha ocurrido un error'));
-                      }
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                      final docs = snapshot.data?.docs ?? [];
-                      if (docs.isEmpty) {
-                        return const Center(child: Text('Usuario no existe'));
-                      }
-                      final empleado = docs.first;
-                      final data = empleado.data() as Map<String, dynamic>;
-                      final establecimiento = data['establecimiento'] ?? '';
+                  future: _searchResult,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return const Center(child: Text('Ha ocurrido un error'));
+                    }
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    final docs = snapshot.data?.docs ?? [];
+                    if (docs.isEmpty) {
+                      return const Center(child: Text('Usuario no existe'));
+                    }
+                    final empleado = docs.first;
+                    final data = empleado.data() as Map<String, dynamic>;
+                    final establecimiento = data['establecimiento'] ?? '';
 
-                      if (establecimiento.isNotEmpty) {
-                        return const Center(child: Text('Usuario ya se encuentra asignado'));
-                      } else {
-                        return _buildEmpleadoCard(empleado);
-                      }
-                    },
-                  ),
+                    if (establecimiento.isNotEmpty) {
+                      return const Center(
+                        child: Text('Usuario ya se encuentra asignado'),
+                      );
+                    } else {
+                      return _buildEmpleadoCard(empleado);
+                    }
+                  },
+                ),
           ],
         ),
       ),

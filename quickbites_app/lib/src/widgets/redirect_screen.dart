@@ -14,20 +14,18 @@ class RedirectScreen extends StatelessWidget {
     Future.microtask(() {
       if (userController.isLoggedIn && userController.userData.value != null) {
         final rol = userController.rol;
-        if (rol == 'Gerente') {
-          context.goNamed('manager');
-        } else if (rol == 'Mesero'){
-          context.goNamed('waiter');
-        }else if (rol == 'Cocinero'){
-          context.goNamed('kitchen');
-        }
-        else 
-        context.goNamed('no-role');
+        if (rol == 'Gerente'.toUpperCase()) {
+          context.goNamed('manager'.toUpperCase());
+        } else if (rol == 'Mesero'.toUpperCase()) {
+          context.goNamed('waiter'.toUpperCase());
+        } else if (rol == 'Cocinero'.toUpperCase()) {
+          context.goNamed('kitchen'.toUpperCase());
+        } else
+          context.goNamed('no-role'.toUpperCase());
       } else {
-        context.goNamed('login');
+        context.goNamed('login'.toUpperCase());
       }
     });
-
     // Pantalla de espera mientras se redirige
     return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }

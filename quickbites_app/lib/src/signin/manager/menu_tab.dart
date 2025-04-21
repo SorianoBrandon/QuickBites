@@ -7,14 +7,12 @@ import 'package:quickbites_app/src/signin/manager/menu_tab/sections/mesas_sectio
 import 'package:quickbites_app/src/signin/manager/menu_tab/sections/platillos_section.dart';
 import 'package:quickbites_app/src/signin/manager/menu_tab/utils/menu_utils.dart';
 
-
 class MenuTab extends StatelessWidget {
-  final GerenteController controller = Get.find<GerenteController>();
-
-  MenuTab({super.key});
+  const MenuTab({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final GerenteController controller = Get.find<GerenteController>();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Gestión de Menú'),
