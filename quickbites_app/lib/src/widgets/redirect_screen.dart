@@ -18,6 +18,8 @@ class RedirectScreen extends StatelessWidget {
           context.goNamed('manager');
         } else if (rol == 'Mesero'){
           context.goNamed('waiter');
+        }else if (rol == 'Cocinero'){
+          context.goNamed('kitchen');
         }
         else 
         context.goNamed('no-role');

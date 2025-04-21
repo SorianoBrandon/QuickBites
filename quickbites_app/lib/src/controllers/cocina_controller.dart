@@ -6,21 +6,28 @@ import '../models/pedido_model.dart';
 class CocinaController extends GetxController {
   final db = FirebaseFirestore.instance;
   final storage = GetStorage();
-  late String establecimiento;
+  //late String establecimiento;
+
+  final establecimiento=''.obs;
 
   var pedidosPendientes = <PedidoModel>[].obs;
 
   @override
   void onInit() {
     super.onInit();
-    establecimiento = storage.read('establecimiento') ?? '';
+    establecimiento.value = storage.read('establecimiento') ?? 'Restaurante';
     cargarPedidosPendientes();
   }
 
   Future<void> cargarPedidosPendientes() async {
+    if (establecimiento.value.isEmpty) {
+      print('Error: Establecimiento esta vacío');
+      return;
+    }
+    try{
     final snapshot =
         await db
-            .collection(establecimiento)
+            .collection(establecimiento.value)
             .doc('pedidos')
             .collection('items')
             .where('estado', isEqualTo: 'pendiente')
@@ -31,12 +38,19 @@ class CocinaController extends GetxController {
     storage.write(
       'pedidosPendientes',
       pedidosPendientes.map((e) => e.toJson()).toList(),
-    );
+    );} catch (e) {
+      print('Error al cargar pedidos pendientes: $e');
+    }
   }
 
-  Stream<List<PedidoModel>> getPedidosPendientesStream(String establecimiento) {
+  Stream<List<PedidoModel>> getPedidosPendientesStream(String establecimientoParam) {
+    final estab = establecimientoParam.isNotEmpty ? establecimientoParam : establecimiento.value;
+    if (estab.isEmpty) {
+      print('Error: Establecimiento esta vacío');
+      return Stream.value([]);
+    }
     return FirebaseFirestore.instance
-        .collection(establecimiento)
+        .collection(estab)
         .doc('pedidos')
         .collection('items')
         .where('estado', isEqualTo: 'pendiente')
@@ -55,12 +69,20 @@ class CocinaController extends GetxController {
   }
 
   Future<void> cambiarEstadoAPreparado(String pedidoId) async {
+    if (establecimiento.value.isEmpty) {
+      print('Error: Establecimiento esta vacío');
+      return;
+    }
+    try{
     await db
-        .collection(establecimiento)
+        .collection(establecimiento.value)
         .doc('pedidos')
         .collection('items')
         .doc(pedidoId)
         .update({'estado': 'preparado'});
     await cargarPedidosPendientes();
+    }catch (e) {
+      print('Error al cambiar el estado del pedido: $e');
+    }
   }
 }
