@@ -68,7 +68,7 @@ class ManagerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Get.put(GerenteController());
+    Get.put(GerenteController(), permanent: true);
     final gerController = Get.find<GerenteController>();
     return Scaffold(
       appBar: AppBar(

@@ -91,9 +91,8 @@ class UserController extends GetxController {
   String get rol => userData.value?['rol'].toString().toUpperCase() ?? '';
   String get nombre => userData.value?['nombre'] ?? '';
   String get apellido => userData.value?['apellido'] ?? '';
-  String get direccion => userData.value?['direccion'] ?? '';
-  String get telefono => userData.value?['telefono'] ?? '';
   String get establecimiento => userData.value?['establecimiento'] ?? '';
   String get email => userData.value?['email'] ?? '';
   String get codigo => userData.value?['codigo'] ?? '';
+  String get uid => userData.value?['uid'] ?? '';
 }

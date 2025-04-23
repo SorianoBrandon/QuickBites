@@ -6,6 +6,7 @@ import 'package:quickbites_app/src/signin/manager/local_tab.dart';
 import 'package:quickbites_app/src/signin/manager/menu_tab.dart';
 import '../models/mesa_model.dart';
 import '../models/platillo_model.dart';
+import '../models/empleados_model.dart';
 import '../models/categoria_model.dart';
 
 class GerenteController extends GetxController {
@@ -29,10 +30,7 @@ class GerenteController extends GetxController {
   }
 
   final views = [
-    LocalTab(
-      establecimiento: Get.find<UserController>().establecimiento,
-      usuariosRef: UserController().userRef,
-    ),
+    LocalTab(establecimiento: Get.find<UserController>().establecimiento),
     MenuTab(),
   ];
 
@@ -275,6 +273,79 @@ class GerenteController extends GetxController {
         });
   }
 
+  Stream<List<EmpleadoModel>> getEmpleadosStream() {
+    final userController = Get.find<UserController>();
+    return FirebaseFirestore.instance
+        .collection('usuarios')
+        .where('establecimiento', isEqualTo: establecimiento)
+        .snapshots()
+        .map((snapshot) {
+          final empleados =
+              snapshot.docs
+                  .map((doc) => EmpleadoModel.fromJson(doc.data(), doc.id))
+                  .toList();
+
+          // Filtrar los empleados cuyo 'uid' no sea igual al 'uidFiltro'
+          final empleadosFiltrados =
+              empleados
+                  .where((empleado) => empleado.uid != userController.uid)
+                  .toList();
+
+          // Guardar solo si hay cambios significativos (esto evita sobreescrituras innecesarias)
+          final empleadosJson =
+              empleadosFiltrados.map((e) => e.toJson()).toList();
+          final empleadosGuardados = GetStorage().read<List>('empleados') ?? [];
+
+          if (empleadosJson != empleadosGuardados) {
+            // Guardar localmente si la lista de empleados ha cambiado
+            GetStorage().write('empleados', empleadosJson);
+          }
+
+          return empleadosFiltrados;
+        });
+  }
+
+  Future<void> updateEmpleadosLocalmente() async {
+    try {
+      // Obtener los empleados desde Firebase nuevamente
+      final snapshot =
+          await FirebaseFirestore.instance
+              .collection('usuarios')
+              .where('establecimiento', isEqualTo: establecimiento)
+              .get();
+
+      final empleados =
+          snapshot.docs
+              .map((doc) => EmpleadoModel.fromJson(doc.data(), doc.id))
+              .toList();
+
+      // Guardar los empleados actualizados en GetStorage
+      GetStorage().write(
+        'empleados',
+        empleados.map((e) => e.toJson()).toList(),
+      );
+    } catch (e) {
+      print("Error al actualizar empleados localmente: $e");
+    }
+  }
+
+  Future<void> softDeleteEmpleado(String docId) async {
+    try {
+      await FirebaseFirestore.instance.collection('usuarios').doc(docId).update(
+        {'rol': 'no-role', 'establecimiento': ''},
+      );
+      // Después de eliminar el empleado en Firebase, actualiza la lista localmente
+      await updateEmpleadosLocalmente(); // Actualiza la lista en GetStorage si es necesario
+      Get.snackbar(
+        'Empleado eliminado',
+        'El empleado ha sido eliminado correctamente.',
+      );
+    } catch (e) {
+      Get.snackbar('Error', 'Hubo un problema al eliminar el empleado.');
+      print("Error al eliminar empleado: $e");
+    }
+  }
+
   Stream<List<PlatilloModel>> getPlatillosStream() {
     return db
         .collection(establecimiento)
@@ -289,6 +360,40 @@ class GerenteController extends GetxController {
           GetStorage().write('platillos', data.map((e) => e.toJson()).toList());
           return data;
         });
+  }
+
+  Future<String?> asignarEmpleadoPorCodigo({
+    required String codigo,
+    required String rol,
+  }) async {
+    try {
+      final QuerySnapshot query =
+          await FirebaseFirestore.instance
+              .collection('usuarios')
+              .where('codigo', isEqualTo: codigo.toUpperCase())
+              .get();
+
+      if (query.docs.isEmpty)
+        return 'No se encontró ningún usuario con ese código';
+
+      final doc = query.docs.first;
+      final data = doc.data() as Map<String, dynamic>;
+
+      if ((data['establecimiento'] ?? '').toString().isNotEmpty) {
+        return 'Este usuario ya está asignado a un establecimiento';
+      }
+
+      final String establecimiento = Get.find<UserController>().establecimiento;
+
+      await doc.reference.update({
+        'rol': rol,
+        'establecimiento': establecimiento,
+      });
+
+      return null;
+    } catch (e) {
+      return 'Error: ${e.toString()}';
+    }
   }
 
   Stream<List<CategoriaModel>> getCategoriasStream() {

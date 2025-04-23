@@ -37,7 +37,7 @@ class AuthService {
           'telefono': telefono,
           'establecimiento': "",
           'createdAt': FieldValue.serverTimestamp(),
-          'rol': "",
+          'rol': "no-role",
         });
 
         // return user;

@@ -4,7 +4,6 @@ import 'package:quickbites_app/src/models/mesa_model.dart';
 import 'package:quickbites_app/src/signin/manager/menu_tab/dialogs/menu_dialogs.dart';
 import 'package:quickbites_app/src/signin/manager/menu_tab/utils/menu_utils.dart';
 
-
 class MesasSection extends StatelessWidget {
   final GerenteController controller;
 
@@ -13,61 +12,113 @@ class MesasSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12.0),
+      padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Colors.blue[50],
-        border: Border.all(color: Colors.blue[200]!),
-        borderRadius: BorderRadius.circular(12.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        color: Colors.white.withOpacity(0.9),
+        borderRadius: BorderRadius.circular(20.0),
       ),
       child: StreamBuilder<List<MesaModel>>(
         stream: controller.getMesasStream(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return const Text('Error al cargar mesas');
+            return const Center(
+              child: Text(
+                'Error al cargar mesas',
+                style: TextStyle(color: Colors.red),
+              ),
+            );
           }
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
           final mesas = snapshot.data ?? [];
           if (mesas.isEmpty) {
-            return const Text('No hay mesas registradas');
+            return const Center(child: Text('No hay mesas registradas'));
           }
-          return ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: mesas.length,
-            itemBuilder: (context, index) {
-              final mesa = mesas[index];
-              return ListTile(
-                title: Text('Mesa: ${mesa.nombre}'),
-                subtitle: Text('Capacidad: ${mesa.capacidad}, Ocupada: ${mesa.ocupada ? 'Sí' : 'No'}'),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit, color: Colors.blue),
-                      onPressed: () => showEditMesaDialog(context, controller, mesa),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                      onPressed: () => confirmDelete(
-                        context,
-                        '¿Seguro que deseas eliminar la mesa ${mesa.nombre}?',
-                        () => controller.eliminarMesa(mesa.id.toString()),
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children:
+                mesas.map((mesa) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 20.0),
+                    child: Container(
+                      padding: const EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF6F3EF),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            spreadRadius: 2,
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Mesa: ${mesa.nombre}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              color: Colors.brown[800],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Capacidad: ${mesa.capacidad}, Ocupada: ${mesa.ocupada ? 'Sí' : 'No'}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.brown[600],
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          Row(
+                            children: [
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.brown[600],
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                onPressed:
+                                    () => showEditMesaDialog(
+                                      context,
+                                      controller,
+                                      mesa,
+                                    ),
+                                child: const Text('Editar'),
+                              ),
+                              const SizedBox(width: 10),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red[600],
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                onPressed:
+                                    () => confirmDelete(
+                                      context,
+                                      '¿Seguro que deseas eliminar la mesa ${mesa.nombre}?',
+                                      () => controller.eliminarMesa(
+                                        mesa.id.toString(),
+                                      ),
+                                    ),
+                                child: const Text('Eliminar'),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-              );
-            },
+                  );
+                }).toList(),
           );
         },
       ),

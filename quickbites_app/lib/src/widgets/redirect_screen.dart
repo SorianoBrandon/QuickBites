@@ -18,7 +18,7 @@ class RedirectScreen extends StatelessWidget {
           context.goNamed('manager'.toUpperCase());
         } else if (rol == 'Mesero'.toUpperCase()) {
           context.goNamed('waiter'.toUpperCase());
-        } else if (rol == 'Cocinero'.toUpperCase()) {
+        } else if (rol == 'Cocina'.toUpperCase()) {
           context.goNamed('kitchen'.toUpperCase());
         } else
           context.goNamed('no-role'.toUpperCase());
