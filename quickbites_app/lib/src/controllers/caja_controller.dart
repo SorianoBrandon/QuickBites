@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:quickbites_app/src/controllers/user_controller.dart';
 import '../models/caja_model.dart';
 
 class CajaController extends GetxController {
@@ -12,8 +13,10 @@ class CajaController extends GetxController {
 
   @override
   void onInit() {
+    final UserController userController = Get.find<UserController>();
     super.onInit();
-    establecimiento = storage.read('establecimiento') ?? '';
+    establecimiento =
+        storage.read('establecimiento') ?? userController.establecimiento;
     cargarFacturacion();
   }
 
@@ -29,10 +32,10 @@ class CajaController extends GetxController {
     storage.write('facturas', listaFacturacion.map((e) => e.toJson()).toList());
   }
 
-  Stream<List<FacturaModel>> getFacturasListasStream(String establecimiento) {
+  Stream<List<FacturaModel>> getFacturasListasStream() {
     return FirebaseFirestore.instance
         .collection(establecimiento)
-        .doc('facturacion')
+        .doc('pedidos')
         .collection('items')
         .where('estado', isEqualTo: 'listo')
         .snapshots()

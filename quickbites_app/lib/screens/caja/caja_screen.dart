@@ -14,7 +14,6 @@ import 'package:quickbites_app/src/controllers/caja_controller.dart';
 import 'package:quickbites_app/src/controllers/user_controller.dart';
 import 'package:quickbites_app/src/models/caja_model.dart';
 
-
 class CajaScreen extends StatefulWidget {
   @override
   _CajaScreenState createState() => _CajaScreenState();
@@ -34,7 +33,9 @@ class _CajaScreenState extends State<CajaScreen> {
   @override
   Widget build(BuildContext context) {
     // Verificar que el establecimiento esté configurado
-    print("ESOOOOOOOOOOOOOOOOOOOOO ${userController.email} ${userController.establecimiento}");
+    print(
+      "ESOOOOOOOOOOOOOOOOOOOOO ${userController.email} ${userController.establecimiento}",
+    );
     if (userController.establecimiento.isEmpty) {
       return Scaffold(
         appBar: AppBar(title: Text('Caja')),
@@ -52,28 +53,26 @@ class _CajaScreenState extends State<CajaScreen> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Caja - ${userController.establecimiento}', style: TextStyle(color: Color(0xFF6e2c13)),),
+          title: Text(
+            'Caja - ${userController.establecimiento}',
+            style: TextStyle(color: Color(0xFF6e2c13)),
+          ),
           actions: [
             IconButton(
-              onPressed: (){
+              onPressed: () {
                 userController.signOut();
                 context.go("/login");
-              }, 
-              icon: Icon(Icons.logout, color: Color(0xFF6e2c13),)
+              },
+              icon: Icon(Icons.logout, color: Color(0xFF6e2c13)),
             ),
-            SizedBox(width: 15.0,),
+            SizedBox(width: 15.0),
           ],
           bottom: TabBar(
             labelColor: Color(0xFF6e2c13),
             tabs: [Tab(text: 'Facturación'), Tab(text: 'Listas')],
           ),
         ),
-        body: TabBarView(
-          children: [
-            _buildFacturacionTab(),
-            _buildListasTab(),
-          ],
-        ),
+        body: TabBarView(children: [_buildFacturacionTab(), _buildListasTab()]),
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.refresh),
           onPressed: () {
@@ -115,9 +114,10 @@ class _CajaScreenState extends State<CajaScreen> {
 
   Widget _buildListasTab() {
     return StreamBuilder<List<FacturaModel>>(
-      stream: cajaController.establecimiento.isEmpty
-          ? Stream.value([])
-          : cajaController.getFacturasListasStream(cajaController.establecimiento),
+      stream:
+          cajaController.establecimiento.isEmpty
+              ? Stream.value([])
+              : cajaController.getFacturasListasStream(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
