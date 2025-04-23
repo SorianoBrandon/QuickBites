@@ -85,4 +85,20 @@ class CocinaController extends GetxController {
       print('Error al cambiar el estado del pedido: $e');
     }
   }
+   Future<void> cambiarEstadoAEntregado(String pedidoId) async {
+    if (establecimiento.value.isEmpty) {
+      print('Error: Establecimiento esta vacío');
+      return;
+    }
+    try {
+      await db
+          .collection(establecimiento.value)
+          .doc('pedidos')
+          .collection('items')
+          .doc(pedidoId)
+          .update({'estado': 'entregado'});
+    } catch (e) {
+      print('Error al cambiar el estado del pedido a entregado: $e');
+    }
+  }
 }
