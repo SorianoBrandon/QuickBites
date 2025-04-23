@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:quickbites_app/src/controllers/cocina_controller.dart';
+import 'package:quickbites_app/src/controllers/user_controller.dart';
 import 'package:quickbites_app/src/models/pedido_model.dart';
 
 class HomePageKitchen extends StatefulWidget {
@@ -12,6 +14,7 @@ class _HomePageKitchenState extends State<HomePageKitchen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final CocinaController _cocinaController = Get.put(CocinaController());
+  final userController = Get.put(UserController());
 
   @override
   void initState() {
@@ -29,16 +32,26 @@ class _HomePageKitchenState extends State<HomePageKitchen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cocina', style: TextStyle(color: Colors.black)),
+        title: Text('Cocina', style: TextStyle(color: Color(0xFF6e2c13))),
         backgroundColor: Colors.white,
         elevation: 0,
         bottom: TabBar(
           controller: _tabController,
-          labelColor: Colors.black,
+          labelColor: Color(0xFF6e2c13),
           unselectedLabelColor: Colors.grey,
-          indicatorColor: Colors.black,
+          indicatorColor: Color(0xFF6e2c13),
           tabs: [Tab(text: 'Pendientes'), Tab(text: 'Listos')],
         ),
+        actions: [
+          IconButton(
+            onPressed: (){
+              userController.signOut();
+              context.go("/login");
+            }, 
+            icon: Icon(Icons.logout, color: Color(0xFF6e2c13),)
+          ),
+          SizedBox(width: 15.0,)
+        ],
       ),
       body: TabBarView(
         controller: _tabController,
@@ -110,6 +123,7 @@ class _HomePageKitchenState extends State<HomePageKitchen>
               final productos = order.productos;
 
               return Card(
+                color: Color(0xFF6e2c13),
                 margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 elevation: 2,
                 child: Padding(
@@ -122,6 +136,7 @@ class _HomePageKitchenState extends State<HomePageKitchen>
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
+                          color: Colors.white
                         ),
                       ),
                       SizedBox(height: 8),
@@ -139,6 +154,7 @@ class _HomePageKitchenState extends State<HomePageKitchen>
                                     style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
+                                      color: Colors.white
                                     ),
                                   ),
                                 ),
@@ -149,7 +165,7 @@ class _HomePageKitchenState extends State<HomePageKitchen>
                                     child: Container(
                                       color: Colors.grey[300],
                                       child: IconButton(
-                                        icon: Icon(Icons.check, size: 20),
+                                        icon: Icon(Icons.check, size: 20, ),
                                         onPressed: () {
                                           _cocinaController
                                               .cambiarEstadoAPreparado(
@@ -170,6 +186,7 @@ class _HomePageKitchenState extends State<HomePageKitchen>
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontStyle: FontStyle.italic,
+                                    color: Colors.white
                                   ),
                                 ),
                               ),
@@ -179,7 +196,7 @@ class _HomePageKitchenState extends State<HomePageKitchen>
                                 padding: const EdgeInsets.only(top: 4),
                                 child: Text(
                                   'Cantidad: ${producto['cantidad']}',
-                                  style: TextStyle(fontSize: 14),
+                                  style: TextStyle(fontSize: 14, color: Colors.white),
                                 ),
                               ),
                             SizedBox(height: 8),

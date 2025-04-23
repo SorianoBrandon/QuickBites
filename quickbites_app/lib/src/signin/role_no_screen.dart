@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 import 'package:quickbites_app/src/controllers/user_controller.dart';
 
 class NoRoleScreen extends StatefulWidget {
@@ -41,7 +42,7 @@ class NoRoleScreenState extends State<NoRoleScreen>
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFFFFF1D0), Color(0xFF6e2c13)],
+            colors: [Colors.white, Colors.white],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -50,52 +51,68 @@ class NoRoleScreenState extends State<NoRoleScreen>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              const SizedBox(
-                height: 30,
-              ), // Espacio para mover el ícono más arriba
-
-              const SizedBox(height: 30),
+              const SizedBox(height: 30), // Espacio para mover el ícono más arriba
               ScaleTransition(
                 scale: _scaleAnimation,
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                  padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 80.0),
                   child: Column(
                     children: [
-                      Text(
-                        'Por favor, contacta al administrador para obtener un rol.',
-                        // Agregar el CODIGO del usuario ********
-                        style: TextStyle(
-                          fontSize: 25,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      Text('Codigo: ${userController.codigo}'),
+                      Lottie.asset('assets/NoRoleAnimation.json'),
+                      const SizedBox(height: 6.0),
                     ],
                   ),
                 ),
               ),
               const SizedBox(height: 60), // Más espacio para bajar el botón
+              Padding(
+                  padding: const EdgeInsets.only(left: 25.0, right: 25.0),
+                  child: Text(
+                    'Por favor, contacta al administrador para obtener un rol.',
+                    style: TextStyle(
+                      fontSize: 18, // Tamaño más grande para impacto
+                      color: const Color(0xFF6e2c13), // Color del botón para cohesión
+                      fontWeight: FontWeight.bold, // Negrita para énfasis
+                      letterSpacing: 1.0, // Espaciado para claridad
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              const SizedBox(height: 10), // Espacio entre los textos
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                decoration: BoxDecoration(
+                  border: Border.all(color: const Color(0xFF6e2c13), width: 1.5), // Borde en lugar de fondo
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  'Código: ${userController.codigo}',
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Colors.black87,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
               ElevatedButton(
                 onPressed: () {
                   userController.signOut();
                   context.go('/login');
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF6e2c13),
-                  foregroundColor: Color(0xFFFFF1D0),
+                  backgroundColor: const Color(0xFF6e2c13),
+                  foregroundColor: const Color(0xFFFFF1D0),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 20,
                     vertical: 10,
-                  ), // Botón más pequeño
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(25),
                   ),
                 ),
                 child: const Text(
                   'Volver al inicio',
-                  style: TextStyle(fontSize: 16), // Texto más pequeño
+                  style: TextStyle(fontSize: 16),
                 ),
               ),
             ],

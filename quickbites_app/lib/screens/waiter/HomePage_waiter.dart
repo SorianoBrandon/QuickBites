@@ -10,7 +10,6 @@ class HomePageWaiter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final camareroController = Get.put(CamareroController());
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mesero'),

@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:quickbites_app/screens/caja/caja_screen.dart';
 import 'package:quickbites_app/screens/kitchen/homepage_kitchen.dart';
 import 'package:quickbites_app/screens/waiter/HomePage_waiter.dart';
 import 'package:quickbites_app/src/signin/role_no_screen.dart';
@@ -31,11 +32,15 @@ final router = GoRouter(
       path: '/kitchen',
       builder: (context, state) => HomePageKitchen(),
     ),
-
     GoRoute(
       name: 'waiter'.toUpperCase(),
       path: '/waiter',
       builder: (context, state) => const HomePageWaiter(),
+    ),
+    GoRoute(
+      name: 'caja'.toUpperCase(),
+      path: '/caja',
+      builder: (context, state) => CajaScreen(),
     ),
   ],
 );
